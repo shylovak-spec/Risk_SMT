@@ -1,253 +1,192 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Слайдер Карток, що Перевертаються (Виправлено)</title>
-    <style>
-        /* === Базові стилі === */
-        * { box-sizing: border-box; }
-        html, body { height: 100%; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            overflow: hidden; /* якщо хочеш дозволити прокрутку на мобільних — прибери */
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Картки на весь екран</title>
 
-        /* === Контейнер слайдера === */
-        .slider-container {
-            position: relative;
-            width: 320px;
-            height: 250px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            border-radius: 12px;
-            background: transparent;
-        }
+<style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 
-        /* Обгортка карток — флекс */
-        .cards-wrapper {
-            display: flex;
-            height: 100%;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            will-change: transform;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        background: #000;
+        color: #fff;
+    }
 
-        /* === Картки === */
-        .card-container {
-            flex: 0 0 320px; /* ширина однієї картки на десктопі */
-            height: 220px;
-            perspective: 1000px;
-            cursor: pointer;
-            padding: 10px;
-            transition: transform 0.3s ease-out;
-        }
+    /* === СЛАЙДЕР === */
+    .slider-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: #000;
+    }
 
-        .card-container:hover { transform: translateY(-5px); }
+    .cards-wrapper {
+        display: flex;
+        height: 100%;
+        transition: transform 0.5s ease;
+    }
 
-        .card {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.8s cubic-bezier(0.4,0.2,0.2,1);
-            transform-style: preserve-3d;
-        }
+    /* === КАРТКА НА ВСЕ ЕКРАН === */
+    .card-container {
+        flex: 0 0 100vw;      /* ширина = ширина екрану */
+        height: 100vh;       /* висота = висота екрану */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1200px;
+    }
 
-        .card.is-flipped { transform: rotateY(180deg); }
+    .card {
+        width: 90vw;
+        height: 85vh;
+        background: #000;
+        border-radius: 14px;
+        transform-style: preserve-3d;
+        transition: transform 0.7s ease;
+        position: relative;
+        box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
 
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #000;
-            color: #fff;
-            box-shadow: 0 14px 28px rgba(0,0,0,0.6), 0 10px 10px rgba(0,0,0,0.5);
-            font-size: 1.1em;
-        }
+    .card.is-flipped {
+        transform: rotateY(180deg);
+    }
 
-        .card-front { border: 4px solid #e74c3c; }
-        .card-back {
-            border: 4px solid #27ae60;
-            transform: rotateY(180deg);
-        }
+    .card-face {
+        position: absolute;
+        inset: 0;
+        padding: 30px;
+        backface-visibility: hidden;
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
 
-        .card-face h3 {
-            margin: 0 0 10px;
-            font-size: 1.4em;
-            letter-spacing: 1px;
-            color: #f1c40f;
-        }
+    .card-front {
+        background: #111;
+        border: 4px solid #e74c3c;
+    }
 
-        /* === Кнопки навігації === */
-        .slider-button {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #333;
-            color: #f0f0f0;
-            border: none;
-            padding: 12px 14px;
-            cursor: pointer;
-            z-index: 10;
-            font-size: 1.4em;
-            border-radius: 50%;
-            opacity: 0.9;
-            transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-        }
+    .card-back {
+        background: #111;
+        border: 4px solid #2ecc71;
+        transform: rotateY(180deg);
+    }
 
-        .slider-button:hover {
-            opacity: 1;
-            background-color: #555;
-            transform: translateY(-50%) scale(1.05);
-        }
+    .card-face h2 {
+        margin: 0 0 15px;
+        color: #f1c40f;
+    }
 
-        #prevBtn { left: -60px; }
-        #nextBtn { right: -60px; }
+    /* === КНОПКИ НАВІГАЦІЇ (внизу центра) === */
+    .controls {
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 20;
+    }
 
-        /* === Адаптивність (мобільні) === */
-        @media (max-width: 500px) {
-            body { background-color: #000; }
+    .btn {
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        border: none;
+        padding: 14px 20px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        backdrop-filter: blur(4px);
+    }
 
-            .slider-container {
-                width: 100vw;
-                height: 100vh;
-                box-shadow: none;
-                border-radius: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
+    .btn:active {
+        transform: scale(0.9);
+    }
 
-            .card-container {
-                flex: 0 0 90vw; /* ширина однієї картки на мобіл */
-                height: 80vh;
-                padding: 0;
-            }
-
-            /* Кнопки внизу */
-            .slider-button {
-                top: auto;
-                bottom: 20px;
-                transform: none;
-                padding: 10px 15px;
-                font-size: 1.2em;
-            }
-
-            #prevBtn { left: 20px; }
-            #nextBtn { right: 20px; }
-        }
-
-        /* Окрема умова для мобільного landscape */
-        @media (max-width: 500px) and (orientation: landscape) {
-            .card-container {
-                flex: 0 0 90vw;
-                height: 90vh;
-            }
-        }
-    </style>
+</style>
 </head>
-<body>
-    <div class="slider-container" aria-label="Слайдер карток">
-        <button type="button" class="slider-button" id="prevBtn" aria-label="Попередня картка">&lt;</button>
-        <button type="button" class="slider-button" id="nextBtn" aria-label="Наступна картка">&gt;</button>
 
-        <div class="cards-wrapper" id="cardsWrapper">
-            <!-- Картки будуть згенеровані JS -->
-        </div>
+<body>
+
+<div class="slider-container">
+
+    <div class="cards-wrapper" id="cardsWrapper"></div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn">⟨</button>
+        <button class="btn" id="nextBtn">⟩</button>
     </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const NUM_CARDS = 16;
-        const wrapper = document.getElementById('cardsWrapper');
+</div>
 
-        // Генерація карток
-        for (let i = 1; i <= NUM_CARDS; i++) {
-            const container = document.createElement('div');
-            container.className = 'card-container';
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const NUM = 16;
+    const wrapper = document.getElementById("cardsWrapper");
 
-            container.innerHTML = `
-                <div class="card" aria-hidden="false">
-                    <div class="card-face card-front">
-                        <h3>КАРТКА №${i} / ${NUM_CARDS}</h3>
-                        <p>Це лицьова сторона. Червона рамка.</p>
-                        <small>(Натисніть для перевертання)</small>
-                    </div>
-                    <div class="card-face card-back">
-                        <h3>ЗВОРОТНА СТОРОНА №${i}</h3>
-                        <p>Це ваш текст. Зелена рамка.</p>
-                    </div>
+    /* ==== Генерація карток ==== */
+    for (let i = 1; i <= NUM; i++) {
+        const div = document.createElement("div");
+        div.className = "card-container";
+        div.innerHTML = `
+            <div class="card">
+                <div class="card-face card-front">
+                    <h2>Картка ${i} / ${NUM}</h2>
+                    <p>Лицьова сторона</p>
+                    <small>Торкніться, щоб перевернути</small>
                 </div>
-            `;
-            wrapper.appendChild(container);
-        }
+                <div class="card-face card-back">
+                    <h2>Зворотна сторона ${i}</h2>
+                    <p>Ваш текст...</p>
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(div);
+    }
 
-        // Після того, як картки додані — налаштовуємо логіку слайдера
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const cardContainers = Array.from(document.querySelectorAll('.card-container'));
-        let currentIndex = 0;
+    const cards = document.querySelectorAll(".card-container");
+    const next = document.getElementById("nextBtn");
+    const prev = document.getElementById("prevBtn");
 
-        // Додаємо обробник кліку на самі картки (перевертання)
-        cardContainers.forEach((c) => {
-            c.addEventListener('click', (e) => {
-                // Захищаємо від спрацьовування при кліку на кнопки (якщо кнопки всередині)
-                // Тільки перевертати ту картку, на яку клікнули
-                const card = c.querySelector('.card');
-                if (card) card.classList.toggle('is-flipped');
-            });
+    let index = 0;
+
+    /* ==== Перевертання картки ==== */
+    cards.forEach(c => {
+        c.addEventListener("click", () => {
+            c.querySelector(".card").classList.toggle("is-flipped");
         });
-
-        // Функція для оновлення зсуву слайдера — в пікселях
-        function updateSlider() {
-            // Якщо немає карток — нічого не робити
-            if (cardContainers.length === 0) return;
-
-            // Визначаємо ширину першої картки (враховує flex-basis для різних пристроїв)
-            const cardWidth = cardContainers[0].getBoundingClientRect().width;
-            const shiftPx = cardWidth * currentIndex;
-            wrapper.style.transform = `translateX(-${shiftPx}px)`;
-        }
-
-        // Кнопки навігації
-        nextBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentIndex < NUM_CARDS - 1) currentIndex++;
-            else currentIndex = 0; // зациклення
-            updateSlider();
-        });
-
-        prevBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentIndex > 0) currentIndex--;
-            else currentIndex = NUM_CARDS - 1;
-            updateSlider();
-        });
-
-        // Якщо змінюється розмір вікна (орієнтація/resize), перерахувати положення
-        window.addEventListener('resize', () => {
-            // невелика затримка, щоб браузер оновив layout
-            window.requestAnimationFrame(updateSlider);
-        });
-
-        // Початкове позиціювання
-        updateSlider();
     });
-    </script>
+
+    /* ==== ОНОВЛЕННЯ СЛАЙДЕРА ==== */
+    function updateSlider() {
+        const w = window.innerWidth;
+        wrapper.style.transform = `translateX(-${index * w}px)`;
+    }
+
+    next.onclick = (e) => {
+        e.stopPropagation();
+        index = (index + 1) % NUM;
+        updateSlider();
+    };
+
+    prev.onclick = (e) => {
+        e.stopPropagation();
+        index = (index - 1 + NUM) % NUM;
+        updateSlider();
+    };
+
+    /* При зміні орієнтації/зміни розміру */
+    window.addEventListener("resize", updateSlider);
+
+    updateSlider();
+});
+</script>
+
 </body>
 </html>
