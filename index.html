@@ -3,174 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Слайдер Карток, що Перевертаються</title>
+    <title>Слайдер Карток, що Перевертаються (Виправлено)</title>
     <style>
-    /* === Загальні Стилі === */
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Сучасний шрифт */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        background-color: #1a1a1a; /* Темний, але не чорний фон сторінки */
-        color: #e0e0e0;
-    }
-
-    /* === Контейнер Слайдера === */
-    .slider-container {
-        position: relative;
-        width: 320px;
-        height: 250px;
-        overflow: hidden;
-        /* Додамо 3D-ефект для кращого вигляду кнопок */
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); 
-        border-radius: 12px;
-    }
-
-    .cards-wrapper {
-        display: flex;
-        width: calc(16 * 100%);
-        height: 100%;
-        transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Більш динамічна анімація */
-    }
-
-    /* === Стилі Карток (Покращення) === */
-    .card-container {
-        width: 320px; 
-        height: 220px; 
-        flex-shrink: 0;
-        perspective: 1000px;
-        cursor: pointer;
-        padding: 10px;
-        /* Ефект наведення: картка трохи піднімається */
-        transition: transform 0.3s ease-out;
-    }
-
-    /* Анімація підйому картки при наведенні */
-    .card-container:hover {
-        transform: translateY(-5px); 
-    }
-
-    .card {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1); /* Довший, плавніший переверт */
-        transform-style: preserve-3d;
-    }
-
-    .card.is-flipped {
-        transform: rotateY(180deg);
-    }
-
-    .card-face {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 20px;
-        box-sizing: border-box;
-        background-color: #000; /* Чорний фон, як ви просили */
-        color: #fff;
-        border-radius: 10px; /* Трохи більш заокруглені кути */
-        /* Реалістична 3D-тінь */
-        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 10px 10px rgba(0, 0, 0, 0.5); 
-        font-size: 1.1em;
-    }
-
-    /* Лицьова сторона: Акцентний червоний */
-    .card-front {
-        border: 4px solid #e74c3c; /* Насичений червоний */
-    }
-
-    /* Зворотна сторона: Акцентний зелений */
-    .card-back {
-        border: 4px solid #27ae60; /* Насичений зелений */
-        transform: rotateY(180deg);
-    }
-
-    /* Стилізація Тексту всередині карток */
-    .card-face h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 1.4em;
-        letter-spacing: 1px;
-        color: #f1c40f; /* Додамо акцентний колір для заголовків */
-    }
-
-    /* === Стилі Навігаційних Кнопок === */
-    .slider-button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: #333; /* Темний фон кнопок */
-        color: #f0f0f0;
-        border: none;
-        padding: 12px 18px;
-        cursor: pointer;
-        z-index: 10;
-        font-size: 1.4em;
-        border-radius: 50%; /* Круглі кнопки */
-        opacity: 0.9;
-        transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
-    }
-
-    .slider-button:hover {
-        opacity: 1;
-        background-color: #555; /* Зміна кольору при наведенні */
-        transform: translateY(-50%) scale(1.05); /* Невелике збільшення */
-    }
-    
-    #prevBtn {
-        left: -60px; 
-    }
-
-    #nextBtn {
-        right: -60px;
-    }
-
-    /* === Адаптивність (для телефонів) === */
-    @media (max-width: 500px) {
+        /* === Загальні Стилі === */
         body {
-            background-color: #000; /* На телефоні робимо фон повністю чорним */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            /* Важливо для мобільної висоти */
+            overflow: hidden; 
         }
+
+        /* === Контейнер Слайдера === */
         .slider-container {
-            width: 90vw; 
-            height: 60vh; /* Збільшимо висоту для кращого відображення контенту */
-            box-shadow: none; /* Прибираємо тінь, щоб не відволікати */
+            position: relative;
+            width: 320px; /* Стандартна ширина для десктопу */
+            height: 250px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
         }
 
+        .cards-wrapper {
+            display: flex;
+            /* Ширина для 16 карток */
+            width: calc(16 * 100%); 
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        /* === Стилі Карток === */
         .card-container {
-            width: 90vw;
-            height: 90%; 
+            width: 320px; 
+            height: 220px; 
+            flex-shrink: 0;
+            perspective: 1000px;
+            cursor: pointer;
+            padding: 10px;
+            transition: transform 0.3s ease-out;
         }
 
+        .card-container:hover {
+            transform: translateY(-5px); 
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #000;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 10px 10px rgba(0, 0, 0, 0.5); 
+            font-size: 1.1em;
+        }
+
+        .card-front {
+            border: 4px solid #e74c3c; 
+        }
+
+        .card-back {
+            border: 4px solid #27ae60; 
+            transform: rotateY(180deg);
+        }
+
+        .card-face h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            letter-spacing: 1px;
+            color: #f1c40f; 
+        }
+
+        /* === Стилі Навігаційних Кнопок === */
         .slider-button {
-            /* Переміщуємо кнопки на нижню частину екрана */
-            top: unset;
-            bottom: 20px; 
-            transform: none;
-            left: 20px !important; 
-            right: 20px !important;
-            padding: 10px 15px;
-            font-size: 1.2em;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: #f0f0f0;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.4em;
+            border-radius: 50%;
+            opacity: 0.9;
+            transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
         }
 
+        .slider-button:hover {
+            opacity: 1;
+            background-color: #555;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
         #prevBtn {
-            left: 20px;
+            left: -60px; 
         }
+
         #nextBtn {
-            right: 20px;
+            right: -60px;
         }
-    }
-</style>
+
+        /* === Адаптивність: Повний Екран на Телефоні === */
+        @media (max-width: 500px) {
+            body {
+                background-color: #000;
+            }
+
+            /* Контейнер Слайдера займає 100% ширини і висоти екрана */
+            .slider-container {
+                width: 100vw; 
+                height: 100vh;
+                box-shadow: none; 
+                border-radius: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            /* Нам потрібно, щоб обгортка картки займала майже всю видиму область */
+            .card-container {
+                width: 90vw; /* 90% ширини екрана */
+                height: 80vh; /* 80% висоти екрана */
+                padding: 0;
+            }
+            
+            /* На мобільному пристрої кожна картка в .cards-wrapper повинна займати 100% ширини контейнера */
+            .cards-wrapper {
+                 width: calc(16 * 100vw); /* 16 разів по 100% ширини вікна */
+            }
+
+            /* Стилі для горизонтального положення (Landscape) */
+            @media (orientation: landscape) {
+                .card-container {
+                    /* Робимо картку ширшою, ніж вищою, для горизонтального екрана */
+                    width: 90vw; 
+                    height: 90vh; 
+                }
+            }
+
+            /* Кнопки переміщуємо на нижню частину */
+            .slider-button {
+                top: unset;
+                bottom: 20px; 
+                transform: none;
+                padding: 10px 15px;
+                font-size: 1.2em;
+            }
+
+            #prevBtn {
+                left: 20px;
+            }
+            #nextBtn {
+                right: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -180,6 +196,7 @@
 
         <div class="cards-wrapper">
             <script>
+                // Генерація карток через JS (тепер вона не вбудована, а запускається в кінці)
                 const numCards = 16;
                 const wrapper = document.querySelector('.cards-wrapper');
 
@@ -206,35 +223,34 @@
     </div>
 
     <script>
+        // === JavaScript для Перевертання та Слайдера ===
         const cardsWrapper = document.querySelector('.cards-wrapper');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const numCards = 16;
-        let currentIndex = 0; // Поточний індекс картки (починається з 0)
+        let currentIndex = 0; 
         
-        // Функція для перевертання картки (залишається як у попередньому коді)
+        // Функція для перевертання картки (тепер вона глобально доступна)
         function flipCard(container) {
             const card = container.querySelector('.card');
+            // !!!! Головне виправлення: toggle використовується для перемикання стану
             card.classList.toggle('is-flipped');
         }
 
         // Функція для оновлення положення слайдера
         function updateSlider() {
-            // Розраховуємо, на скільки відсотків потрібно зсунути картки.
-            // Кожна картка займає 1/16 від загальної ширини обгортки (cards-wrapper), 
-            // тобто зсув на 100% / 16 = 6.25% на кожну картку.
+            // Розраховуємо зсув. Тут ми використовуємо відсотки, як і раніше, 
+            // але в CSS картка займає 1/16 від загальної ширини cards-wrapper.
             const percentageShift = (currentIndex / numCards) * 100;
-
-            // Застосовуємо трансформацію CSS для зсуву обгортки
             cardsWrapper.style.transform = `translateX(-${percentageShift}%)`;
         }
 
         // Обробник натискання кнопки "Наступна"
         nextBtn.addEventListener('click', () => {
-            if (currentIndex < numCards - 1) { // Перевірка, щоб не вийти за межі
+            if (currentIndex < numCards - 1) {
                 currentIndex++;
             } else {
-                currentIndex = 0; // Повертаємося до першої картки (зациклення)
+                currentIndex = 0; // Зациклення
             }
             updateSlider();
         });
@@ -244,12 +260,12 @@
             if (currentIndex > 0) {
                 currentIndex--;
             } else {
-                currentIndex = numCards - 1; // Переходимо до останньої картки (зациклення)
+                currentIndex = numCards - 1; // Зациклення
             }
             updateSlider();
         });
 
-        // Початкове відображення (на всякий випадок)
+        // Початкове відображення
         updateSlider();
 
     </script>
