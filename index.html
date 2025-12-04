@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Картки, що Перевертаються</title>
+    <style>
+        /* === Загальні Стилі та Адаптивність === */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* Світлий фон сторінки */
+        }
+
+        /* Контейнер для центрування карток */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+            max-width: 1200px;
+        }
+
+        /* Стилі для адаптивності на малих екранах */
+        @media (max-width: 600px) {
+            .cards-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* === Стилі Карток === */
+        .card-container {
+            width: 300px; /* Ширина картки */
+            height: 200px; /* Висота картки */
+            perspective: 1000px; /* Встановлює перспективу для 3D-ефекту */
+            cursor: pointer; /* Змінюємо курсор, щоб показати, що це інтерактивний елемент */
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s; /* Час анімації перевертання */
+            transform-style: preserve-3d; /* Зберігаємо 3D-простір для дочірніх елементів */
+        }
+
+        /* Стан перевертання, який додається через JavaScript */
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Сторони картки */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Ховаємо зворотну сторону, коли вона не повернута до нас */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+            box-sizing: border-box;
+            background-color: #000; /* Чорний фон для обох сторін */
+            color: #fff; /* Білий текст */
+            border-radius: 8px; /* Заокруглені кути */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Тінь для глибини */
+            font-size: 1.1em;
+        }
+
+        /* Лицьова сторона: Червона рамка */
+        .card-front {
+            border: 5px solid #ff4136; /* Червоний колір */
+        }
+
+        /* Зворотна сторона: Зелена рамка */
+        .card-back {
+            border: 5px solid #2ecc40; /* Зелений колір */
+            transform: rotateY(180deg); /* Початкове положення - перевернута */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="cards-grid">
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card" id="card1">
+                <div class="card-face card-front">
+                    <h2>Сторона 1: КАРКАС</h2>
+                    <p>(Натисніть, щоб перевернути)</p>
+                </div>
+                <div class="card-face card-back">
+                    <p>Сторона 2: Тут буде ваш наступний текст. Рамка зелена!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card" id="card2">
+                <div class="card-face card-front">
+                    <h2>Ще одна Картка</h2>
+                    <p>Спробуйте натиснути й на неї!</p>
+                </div>
+                <div class="card-face card-back">
+                    <p>Зворотна сторона цієї картки. Адаптивність працює!</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // === JavaScript для Перевертання ===
+        function flipCard(container) {
+            // Знаходимо елемент з класом .card всередині контейнера
+            const card = container.querySelector('.card');
+            
+            // Перемикаємо клас 'is-flipped'. 
+            // Якщо його немає, він додається, і картка перевертається. 
+            // Якщо він є, він видаляється, і картка повертається.
+            card.classList.toggle('is-flipped');
+        }
+    </script>
+
+</body>
+</html>
