@@ -131,93 +131,173 @@ let canvas, ctx;
 let W, H;
 let ball, paddle;
 let score = 0;
-let running = false;
+let isRunning = false; // Змінено running на isRunning для кращої читабельності
 let ballSpeed = 5;
 let paddleWidth = 120;
+let gameInitialized = false;
+
+// Отримуємо елементи один раз
+const scoreElement = document.getElementById('score');
+const pauseBtn = document.getElementById('pauseBtn');
+const restartBtn = document.getElementById('restartBtn');
+const speedRange = document.getElementById('speedRange');
+const paddleRange = document.getElementById('paddleRange');
 
 function initGame() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
-
-    resize();
+    
+    // Якщо гра вже ініціалізована, просто робимо рестарт
+    if (gameInitialized) {
+        restartGame();
+        return;
+    }
+    
+    // Перша ініціалізація
+    gameInitialized = true;
+    
+    // Додаємо слухачів подій, які не змінюються
     window.addEventListener('resize', resize);
-
-    ball = { x: W/2, y: H/2, vx: ballSpeed, vy: ballSpeed, r: 10 };
-    paddle = { w: paddleWidth, h: 12, x: W/2 - paddleWidth/2, y: H - 30 };
-
-    score = 0;
-    running = false;
-    document.getElementById('score').textContent = score;
-
     canvas.addEventListener('click', startBall);
     canvas.addEventListener('touchmove', movePaddleTouch, { passive: false });
     document.addEventListener('mousemove', movePaddleMouse);
+    
+    pauseBtn.onclick = () => isRunning = !isRunning;
+    restartBtn.onclick = restartGame;
+    speedRange.oninput = updateSpeed;
+    paddleRange.oninput = updatePaddleWidth;
 
-    requestAnimationFrame(loop);
+    // Запускаємо перший цикл
+    loop();
+    
+    // Налаштовуємо початковий стан
+    resetGameObjects();
+    resize();
 }
 
 function resize() {
+    // Встановлюємо розміри canvas відповідно до вікна/секції
+    const uiBarHeight = document.getElementById('ui-bar').offsetHeight;
     W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight - document.getElementById('ui-bar').offsetHeight;
-    paddle.x = Math.min(paddle.x, W - paddle.w);
-    paddle.y = H - 30;
+    H = canvas.height = window.innerHeight - uiBarHeight;
+    
+    // Переміщуємо ракетку та м'яч пропорційно, якщо вони існують
+    if (paddle) {
+        paddle.x = Math.min(paddle.x, W - paddle.w);
+        paddle.y = H - 30;
+    }
+    if (ball) {
+        // Якщо гра не біжить, повертаємо м'яч у центр
+        if (!isRunning) {
+            ball.x = W / 2;
+            ball.y = H / 2;
+        }
+    }
+}
+
+function resetGameObjects() {
+    // Створення або скидання об'єктів гри
+    ball = { x: W/2, y: H/2, vx: ballSpeed, vy: ballSpeed, r: 10 };
+    paddle = { w: paddleWidth, h: 12, x: W/2 - paddleWidth/2, y: H - 30 };
+    score = 0;
+    isRunning = false;
+    scoreElement.textContent = score;
+    
+    // Оновлюємо початкову швидкість м'яча відповідно до повзунка
+    updateSpeed({ target: speedRange });
+}
+
+function restartGame() {
+    resetGameObjects();
+    resize();
 }
 
 function startBall() {
-    if (!running) running = true;
+    if (!isRunning) isRunning = true;
 }
 
 function loop() {
+    // Очищення екрана
     ctx.clearRect(0, 0, W, H);
 
-    if (running) update();
+    if (isRunning) update();
     draw();
 
     requestAnimationFrame(loop);
 }
 
 function update() {
+    // Рух м'яча
     ball.x += ball.vx;
     ball.y += ball.vy;
 
     // Відбивання від стін
-    if (ball.x < ball.r) { ball.x = ball.r; ball.vx *= -1; }
-    if (ball.x > W - ball.r) { ball.x = W - ball.r; ball.vx *= -1; }
-    if (ball.y < ball.r) { ball.y = ball.r; ball.vy *= -1; }
+    if (ball.x < ball.r) { ball.x = ball.r; ball.vx = Math.abs(ball.vx); }
+    if (ball.x > W - ball.r) { ball.x = W - ball.r; ball.vx = -Math.abs(ball.vx); }
+    
+    // Відбивання від верхньої стіни
+    if (ball.y < ball.r) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); }
 
-    // Відбивання від ракетки
-    if (ball.y + ball.r >= paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
+    // Відбивання від ракетки (нижня частина екрана)
+    if (ball.y + ball.r >= paddle.y && ball.y + ball.r <= paddle.y + paddle.h && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
         ball.vy = -Math.abs(ball.vy);
+        
+        // Зміна кута відбиття (щоб м'яч летів швидше або повільніше по X)
         let delta = ball.x - (paddle.x + paddle.w/2);
-        ball.vx = delta * 0.2;
+        ball.vx = delta * 0.2; // 0.2 - коефіцієнт зміни кута
+        
         score++;
-        document.getElementById('score').textContent = score;
+        scoreElement.textContent = score;
     }
 
-    if (ball.y > H) running = false;
+    // Втрата м'яча (вихід за нижню межу)
+    if (ball.y > H) isRunning = false;
 }
 
 function draw() {
+    // Малювання м'яча
     ctx.fillStyle = "#fff";
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
     ctx.fill();
 
+    // Малювання ракетки
     ctx.fillStyle = "#fff";
     ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
 }
 
 /*************************** УПРАВЛІННЯ ***************************/
-document.getElementById('pauseBtn').onclick = () => running = !running;
-document.getElementById('restartBtn').onclick = () => initGame();
-document.getElementById('speedRange').oninput = (e) => {
+
+function updateSpeed(e) {
     ballSpeed = Number(e.target.value);
-    if (!running) { ball.vx = ballSpeed; ball.vy = ballSpeed; }
-};
-document.getElementById('paddleRange').oninput = (e) => {
+    
+    // Оновлюємо швидкість, зберігаючи напрямок
+    if (ball) {
+        const magnitude = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+        const factor = ballSpeed / 5; // Поточна швидкість відносно базової 5
+        
+        if (magnitude > 0) {
+            const ratioX = ball.vx / magnitude;
+            const ratioY = ball.vy / magnitude;
+            
+            ball.vx = (5 * factor) * ratioX;
+            ball.vy = (5 * factor) * ratioY;
+        } else {
+             // Якщо м'яч стоїть (на початку), просто встановлюємо швидкість
+             ball.vx = 5 * factor;
+             ball.vy = 5 * factor;
+        }
+    }
+}
+
+function updatePaddleWidth(e) {
     paddleWidth = Number(e.target.value);
-    paddle.w = paddleWidth;
-};
+    if (paddle) {
+        paddle.w = paddleWidth;
+         // Запобігання виходу за межі при зміні розміру
+        if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
+    }
+}
 
 // Миша
 function movePaddleMouse(e) {
@@ -231,8 +311,14 @@ function movePaddleMouse(e) {
 function movePaddleTouch(e) {
     e.preventDefault();
     if (game.style.display !== 'flex') return;
+    // Використовуємо offsetLeft секції гри, щоб отримати коректну позицію
     let touch = e.touches[0];
-    paddle.x = touch.clientX - paddle.w / 2;
+    let canvasRect = canvas.getBoundingClientRect();
+    
+    // Координата X дотику відносно Canvas
+    let touchX = touch.clientX - canvasRect.left; 
+
+    paddle.x = touchX - paddle.w / 2;
     if (paddle.x < 0) paddle.x = 0;
     if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
 }
