@@ -87,6 +87,7 @@ startBtn.onclick = () => {
 };
 
 /*************************** КАРТКИ ***************************/
+// ТУТ МОЖНА ЗМІНЮВАТИ ТЕКСТ КАРТОК
 const cardData = [
     { front:"Ризик 1", back:"Деталі ризику 1" },
     { front:"Ризик 2", back:"Деталі ризику 2" },
@@ -141,19 +142,25 @@ function initGame() {
     resize();
     window.addEventListener('resize', resize);
 
-    ball = { x:W/2, y:H/2, vx:ballSpeed, vy:ballSpeed, r:10 };
-    paddle = { w:paddleWidth, h:12, x:W/2 - paddleWidth/2, y:H - 30 };
+    ball = { x: W/2, y: H/2, vx: ballSpeed, vy: ballSpeed, r: 10 };
+    paddle = { w: paddleWidth, h: 12, x: W/2 - paddleWidth/2, y: H - 30 };
 
     score = 0;
     running = false;
+    document.getElementById('score').textContent = score;
 
     canvas.addEventListener('click', startBall);
+    canvas.addEventListener('touchmove', movePaddleTouch, { passive: false });
+    document.addEventListener('mousemove', movePaddleMouse);
+
     requestAnimationFrame(loop);
 }
 
 function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight - document.getElementById('ui-bar').offsetHeight;
+    paddle.x = Math.min(paddle.x, W - paddle.w);
+    paddle.y = H - 30;
 }
 
 function startBall() {
@@ -161,7 +168,7 @@ function startBall() {
 }
 
 function loop() {
-    ctx.clearRect(0,0,W,H);
+    ctx.clearRect(0, 0, W, H);
 
     if (running) update();
     draw();
@@ -173,18 +180,21 @@ function update() {
     ball.x += ball.vx;
     ball.y += ball.vy;
 
-    if (ball.x < ball.r || ball.x > W - ball.r) ball.vx *= -1;
-    if (ball.y < ball.r) ball.vy *= -1;
+    // Відбивання від стін
+    if (ball.x < ball.r) { ball.x = ball.r; ball.vx *= -1; }
+    if (ball.x > W - ball.r) { ball.x = W - ball.r; ball.vx *= -1; }
+    if (ball.y < ball.r) { ball.y = ball.r; ball.vy *= -1; }
 
+    // Відбивання від ракетки
     if (ball.y + ball.r >= paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
-        ball.vy *= -1;
+        ball.vy = -Math.abs(ball.vy);
+        let delta = ball.x - (paddle.x + paddle.w/2);
+        ball.vx = delta * 0.2;
         score++;
         document.getElementById('score').textContent = score;
     }
 
-    if (ball.y > H) {
-        running = false;
-    }
+    if (ball.y > H) running = false;
 }
 
 function draw() {
@@ -200,14 +210,32 @@ function draw() {
 /*************************** УПРАВЛІННЯ ***************************/
 document.getElementById('pauseBtn').onclick = () => running = !running;
 document.getElementById('restartBtn').onclick = () => initGame();
-document.getElementById('speedRange').oninput = (e) => ballSpeed = Number(e.target.value);
-document.getElementById('paddleRange').oninput = (e) => paddleWidth = Number(e.target.value);
+document.getElementById('speedRange').oninput = (e) => {
+    ballSpeed = Number(e.target.value);
+    if (!running) { ball.vx = ballSpeed; ball.vy = ballSpeed; }
+};
+document.getElementById('paddleRange').oninput = (e) => {
+    paddleWidth = Number(e.target.value);
+    paddle.w = paddleWidth;
+};
 
-document.addEventListener('mousemove', e => {
+// Миша
+function movePaddleMouse(e) {
     if (game.style.display !== 'flex') return;
-    paddle.x = e.clientX - paddle.w/2;
-});
+    paddle.x = e.clientX - paddle.w / 2;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
+}
 
+// Сенсорний екран
+function movePaddleTouch(e) {
+    e.preventDefault();
+    if (game.style.display !== 'flex') return;
+    let touch = e.touches[0];
+    paddle.x = touch.clientX - paddle.w / 2;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
+}
 </script>
 </body>
 </html>
