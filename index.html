@@ -8,20 +8,20 @@
 <style>
 /* === ЗМІННІ === */
 :root {
-    --bg-light: #f4f4f4;
-    --bg-dark: #1a1a1a; /* Основний темний фон */
+    --bg-light: #fff; /* ВИПРАВЛЕНО: Білий фон для сторінки карток і гри */
+    --bg-dark: #1a1a1a; /* Чорний фон для карток і титулки */
     --card-border-front: #ff0000; /* Червона рамка (Ризик) */
     --card-border-back: #00ff00; /* Зелена рамка (Контроль) */
     --accent: #000;
 }
 /* === ФІКС: ГАРАНТУЄМО ПОВНУ ВИСОТУ СТОРІНКИ === */
 html, body {
-    height: 100%; /* Це важливо для коректного відображення #landing-page на повний екран */
+    height: 100%;
 }
 body {
     font-family: 'Roboto', sans-serif;
     margin:0; padding:0;
-    background-color: var(--bg-light);
+    background-color: var(--bg-light); /* ВИПРАВЛЕНО: Білий фон для body */
     color:#333;
     perspective:1000px;
 }
@@ -48,10 +48,13 @@ body {
 .card.is-flipped { transform:rotateY(180deg); }
 .card-face { 
     position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; 
-    display:flex; flex-direction:column; justify-content:space-around; align-items:center; border-radius:12px; border:3px solid; 
+    display:flex; flex-direction:column; justify-content:space-around; align-items:flex-start; /* ВИПРАВЛЕНО: Вирівнювання тексту */
+    border-radius:12px; border:3px solid; 
     background-color: var(--bg-dark); /* ЧОРНИЙ ФОН */
     color: white; /* БІЛИЙ ТЕКСТ */
+    text-align: left; /* ВИПРАВЛЕНО: Текст зліва */
 }
+.card-face h3 { margin-top: 0; } /* Додатковий фікс для заголовків */
 .card-face-front { 
     border-color: var(--card-border-front); /* ЧЕРВОНА РАМКА */
 }
@@ -59,6 +62,7 @@ body {
     transform:rotateY(180deg); 
     border-color: var(--card-border-back); /* ЗЕЛЕНА РАМКА */
 }
+/* Щоб текст не виходив за межі (забезпечується padding:20px і flex-direction:column) */
 
 /* КНОПКА переходу до гри */
 #to-game-btn { 
@@ -70,21 +74,21 @@ body {
 
 /* === СЕКЦІЯ ГРИ === */
 #game-section { 
-    display:none; min-height:100vh; background-color:#e0e0e0; 
+    display:none; min-height:100vh; background-color:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */
     color:#000; padding:20px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex-direction:column; 
 }
-.game-wrap { width:820px; max-width:100%; padding:20px; border-radius:12px; background:#fff; box-shadow:0 8px 30px rgba(0,0,0,0.2); }
+.game-wrap { width:820px; max-width:100%; padding:20px; border-radius:12px; background:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */ box-shadow:0 8px 30px rgba(0,0,0,0.2); }
 .game-header h2 { font-size:1.5em; margin:0; color:#000; text-align:center; margin-bottom:12px; }
 .game-board { display:flex; gap:12px; flex-direction:column; align-items:center; }
 canvas { 
-    background:#00111b; /* Темне ігрове поле */
+    background:#ffffff; /* ВИПРАВЛЕНО: Біле ігрове поле */
     border-radius:6px; width:100%; max-width:560px; height:auto; aspect-ratio:560/360; display:block; border:1px solid #333; 
 }
-.game-sidebar { width:220px; max-width:100%; padding:12px; border-radius:8px; background:#f0f0f0; margin-top:12px; }
+.game-sidebar { width:220px; max-width:100%; padding:12px; border-radius:8px; background:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */ margin-top:12px; border: 1px solid #ccc; }
 .game-stat strong { display:block; font-size:20px; color:#000; }
-.game-controls button { background:transparent; border:1px solid #000; padding:6px; border-radius:4px; font-size:0.9em; cursor:pointer; }
+.game-controls button { background:transparent; border:1px solid #000; color: #000; padding:6px; border-radius:4px; font-size:0.9em; cursor:pointer; }
 .game-controls button:hover { background:#ddd; }
-.game-controls label { display:block; font-size: 0.9em; margin-top: 5px; } 
+.game-controls label { display:block; font-size: 0.9em; margin-top: 5px; color: #000; } 
 .game-controls input[type="range"] { width: 100%; margin-top: 2px; }
 
 /* Адаптивність */
@@ -210,8 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('card-page').style.display = 'none';
     document.getElementById('game-section').style.display = 'none';
 
-    // 2. Ініціалізуємо гру, але вона почнеться тільки після натискання кнопки
-    initializeGame(); // <--- ЦЕЙ ВИКЛИК БУВ ПРОПУЩЕНИЙ АБО НЕПРАВИЛЬНО РОЗМІЩЕНИЙ
+    // 2. Ініціалізуємо гру
+    initializeGame();
 });
 
 // Перехід на сторінку карток
@@ -234,11 +238,9 @@ function flipCard(container) {
 document.getElementById('to-game-btn').addEventListener('click', () => {
     document.getElementById('card-page').style.display = 'none';
     document.getElementById('game-section').style.display = 'flex';
-    // На цьому етапі гра вже ініціалізована, але можна додати resetGame(), щоб бути впевненим
-    // resetGame(); 
 });
 
-// === ЛОГІКА ГРИ "PING-PONG" (Без змін) ===
+// === ЛОГІКА ГРИ "PING-PONG" ===
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -289,20 +291,20 @@ function drawRoundedRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y);
 function draw() {
     if (!state) return;
     ctx.clearRect(0, 0, W, H);
-    // Сітка (додано для кращого вигляду)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; 
+    // Сітка
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; /* ЧОРНА СІТКА */
     for(let i=0; i<H; i+=20) ctx.fillRect(W/2 - 1, i + 6, 2, 12);
 
     // М'яч
-    ctx.fillStyle = "#fff"; 
+    ctx.fillStyle = "#000"; /* ЧОРНИЙ М'ЯЧ */
     ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
     
     // Ракетка
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; 
+    ctx.fillStyle = "#000"; /* ЧОРНА РАКЕТКА */
     drawRoundedRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
 }
 
-// Основний крок логіки гри
+// Основний крок логіки гри (без змін)
 function step() {
     if (!state.running || state.paused) return;
     // Рух ракетки (обмежуємо по краях)
@@ -344,7 +346,7 @@ function step() {
     }
 }
 
-// Функція випуску м'яча
+// Функція випуску м'яча (без змін)
 function releaseBall() { 
     ballReleased = true; 
     const speed = state.ballSpeedBase;
@@ -354,7 +356,7 @@ function releaseBall() { 
     ball.vy = -Math.abs(speed * Math.sin(angle)); 
 }
 
-// Керування з клавіатури
+// Керування з клавіатури (без змін)
 let left = false, right = false;
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') left = true;
@@ -372,7 +374,7 @@ function updatePaddleFromKeys() { 
 }
 updatePaddleFromKeys(); // Запуск циклу оновлення ракетки
 
-// Керування мишею/дотиком
+// Керування мишею/дотиком (без змін)
 canvas.addEventListener('mousemove', handleInput);
 canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0]); });
 canvas.addEventListener('touchstart', e => { if (!ballReleased && state.running) releaseBall(); }); 
@@ -393,7 +395,7 @@ function handleInput(e) {
     if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
 }
 
-// Обробники кнопок
+// Обробники кнопок (без змін)
 startBtn.addEventListener('click', () => { 
     state.ballSpeedBase = +speedInput.value; 
     state.paddleWidth = +paddleWidthInput.value; 
@@ -401,11 +403,11 @@ startBtn.addEventListener('click', () => { 
 });
 pauseBtn.addEventListener('click', () => { if (state.running) state.paused = !state.paused; });
 
-// Обробники повзунків
+// Обробники повзунків (без змін)
 speedInput.addEventListener('input', () => { state.ballSpeedBase = +speedInput.value; });
 paddleWidthInput.addEventListener('input', () => { state.paddleWidth = +paddleWidthInput.value; paddle.w = state.paddleWidth; paddle.x = Math.min(paddle.x, W - paddle.w); });
 
-// Цикл рендерингу (малювання)
+// Цикл рендерингу (малювання) (без змін)
 function renderLoop() { draw(); requestAnimationFrame(renderLoop); }
 </script>
 
