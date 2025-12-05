@@ -7,87 +7,43 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --bg-light: #f4f4f4;
-    --bg-dark: #1a1a1a;
-    --card-border-front: #000;
-    --card-border-back: #333;
-    --accent: #fff;
+  --bg-light: #f4f4f4;
+  --bg-dark: #1a1a1a;
+  --card-border-front: #ff0000;
+  --card-border-back: #00ff00;
+  --accent: #000;
 }
-
 body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-light);
-    color: #333;
-    perspective: 1000px;
+  font-family: 'Roboto', sans-serif;
+  margin:0; padding:0;
+  background-color: var(--bg-light);
+  color:#333;
+  perspective:1000px;
 }
-
-/* === TITULЬНА === */
+/* TITULЬНА */
 #landing-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: var(--bg-dark);
-    color: var(--accent);
-    text-align: center;
-    padding: 20px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  height:100vh; background-color: var(--bg-dark); color:white; text-align:center; padding:20px;
 }
-#landing-page h1 {
-    font-size: 2.5em;
-    margin-bottom: 40px;
-    font-weight: 700;
-}
-#start-button {
-    padding: 12px 25px;
-    font-size: 1em;
-    cursor: pointer;
-    background-color: var(--accent);
-    color: var(--bg-dark);
-    border: none;
-    border-radius: 6px;
-    transition: 0.3s;
-}
-#start-button:hover { background-color: #ddd; }
-
-/* === КАРТКИ === */
-#card-page { display: none; padding: 20px; min-height: 100vh; }
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    justify-content: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-.card-container { width: 100%; height: 200px; perspective: 1000px; cursor: pointer; }
-.card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s; border-radius: 12px; }
-.card.is-flipped { transform: rotateY(180deg); }
-.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-around; align-items: center; border-radius: 12px; border: 3px solid; }
-.card-face-front { border-color: var(--card-border-front); background-color: #fff; color: #000; }
-.card-face-back { transform: rotateY(180deg); border-color: var(--card-border-back); background-color: #000; color: #fff; }
-
-/* === КНОПКА переходу до гри === */
-#to-game-btn { display:none; margin: 20px auto; padding:12px 25px; font-size:1em; background-color:#fff; color:#000; border:none; border-radius:6px; cursor:pointer; transition:0.3s; }
-#to-game-btn:hover { background-color:#ddd; }
-
-/* === ГРА === */
-#game-section {
-    display:none;
-    min-height:100vh;
-    background-color:#fff;
-    color:#000;
-    padding:20px;
-    box-sizing:border-box;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-}
-.game-wrap { width: 820px; max-width:100%; padding:20px; border-radius:12px; background:#f4f4f4; box-shadow:0 8px 30px rgba(0,0,0,0.2); }
-.game-header { display:flex; flex-direction:column; margin-bottom:12px; }
-.game-header h2 { font-size:1.5em; margin:0; color:#000; }
+#landing-page h1 { font-size:2.5em; margin-bottom:40px; font-weight:700; }
+#start-button { padding:12px 25px; font-size:1em; cursor:pointer; background-color:white; color:var(--bg-dark); border:none; border-radius:6px; transition:0.3s;}
+#start-button:hover{background-color:#ddd;}
+/* КАРТКИ */
+#card-page { display:none; padding:20px; min-height:100vh; }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:30px; justify-content:center; max-width:1200px; margin:0 auto; }
+.card-container { width:100%; height:200px; perspective:1000px; cursor:pointer; }
+.card { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.8s; border-radius:12px; }
+.card.is-flipped { transform:rotateY(180deg); }
+.card-face { position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-around; align-items:center; border-radius:12px; border:3px solid; }
+.card-face-front { border-color: var(--card-border-front); background-color:#fff; color:#000; }
+.card-face-back { transform:rotateY(180deg); border-color: var(--card-border-back); background-color:#000; color:#fff; }
+/* КНОПКА переходу до гри */
+#to-game-btn { display:none; margin:20px auto; padding:12px 25px; font-size:1em; background-color:#fff; color:#000; border:none; border-radius:6px; cursor:pointer; transition:0.3s; }
+#to-game-btn:hover{ background-color:#ddd;}
+/* ГРА */
+#game-section { display:none; min-height:100vh; background-color:#fff; color:#000; padding:20px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.game-wrap { width:820px; max-width:100%; padding:20px; border-radius:12px; background:#f4f4f4; box-shadow:0 8px 30px rgba(0,0,0,0.2); }
+.game-header h2 { font-size:1.5em; margin:0; color:#000; text-align:center; margin-bottom:12px; }
 .game-board { display:flex; gap:12px; flex-direction:column; align-items:center; }
 canvas { background:#fff; border-radius:6px; width:100%; max-width:560px; height:auto; aspect-ratio:560/360; display:block; border:1px solid #000; }
 .game-sidebar { width:220px; max-width:100%; padding:12px; border-radius:8px; background:#f0f0f0; margin-top:12px; }
@@ -95,142 +51,226 @@ canvas { background:#fff; border-radius:6px; width:100%; max-width:560px; height
 .game-controls { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
 .game-controls button { background:transparent; border:1px solid #000; padding:6px; border-radius:4px; font-size:0.9em; cursor:pointer; }
 .game-controls button:hover { background:#ddd; }
-
-/* === АДАПТИВНІСТЬ === */
-@media (max-width:768px){
-    #landing-page h1{font-size:2em;}
-    .cards-grid{grid-template-columns:1fr;}
-    .card-container{height:250px;}
-    .game-board{flex-direction:column;}
-    canvas{order:2;}
-    .game-sidebar{width:100%; order:1;}
-    .game-wrap{padding:10px;}
-    .game-header{align-items:flex-start;}
+/* Адаптивність */
+@media(max-width:768px){
+  #landing-page h1{font-size:2em;}
+  .cards-grid{grid-template-columns:1fr;}
+  .card-container{height:250px;}
+  .game-board{flex-direction:column;}
+  canvas{order:2;}
+  .game-sidebar{width:100%; order:1;}
+  .game-wrap{padding:10px;}
 }
-
-/* === HUD М’яч і ракетка біла === */
 </style>
 </head>
 <body>
 
 <div id="landing-page">
-    <h1>Журнал оцінки ризиків для дільниці SMT</h1>
-    <button id="start-button">СТАРТ</button>
+  <h1>Журнал оцінки ризиків для дільниці SMT</h1>
+  <button id="start-button">СТАРТ</button>
 </div>
 
 <div id="card-page">
-    <div class="cards-grid">
-        <!-- 5 карток -->
-        <div class="card-container" data-card-id="1">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №1: Робота з відкритим паяльником</h3>
-                    <p>Оцінка: Високий</p>
-                    <p>Натисніть для детальної інформації!</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №1</h3>
-                    <p>Заходи: Використання підставки з губкою</p>
-                    <p>Наслідок: Опік</p>
-                </div>
-            </div>
+  <div class="cards-grid">
+    <div class="card-container" data-card-id="1">
+      <div class="card" onclick="flipCard(this.parentNode)">
+        <div class="card-face card-face-front">
+          <h3>Ризик №1: Робота з відкритим паяльником</h3>
+          <p>Оцінка: Високий</p>
+          <p>Натисніть для детальної інформації!</p>
         </div>
-        <!-- Повторити для 2-5 карток -->
-        <div class="card-container" data-card-id="2">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №2: Несправна вентиляція</h3>
-                    <p>Оцінка: Середній</p>
-                    <p>Натисніть для детальної інформації!</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №2</h3>
-                    <p>Регулярне техобслуговування, перевірка фільтрів</p>
-                </div>
-            </div>
+        <div class="card-face card-face-back">
+          <h3>Контроль Ризику №1</h3>
+          <p>Заходи: Використання підставки з губкою</p>
+          <p>Наслідок: Опік</p>
         </div>
-        <div class="card-container" data-card-id="3">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №3: Неправильне зберігання хімікатів</h3>
-                    <p>Оцінка: Високий</p>
-                    <p>Натисніть для детальної інформації!</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №3</h3>
-                    <p>Герметичні шафи, маркування</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="4">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №4: Напруга на платах</h3>
-                    <p>Оцінка: Низький</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №4</h3>
-                    <p>Антистатичні браслети, заземлення</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="5">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №5: Перевтома оператора</h3>
-                    <p>Оцінка: Середній</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №5</h3>
-                    <p>Перерви, ротація завдань</p>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    <button id="to-game-btn">Пограєм?</button>
+    <div class="card-container" data-card-id="2">
+      <div class="card" onclick="flipCard(this.parentNode)">
+        <div class="card-face card-face-front">
+          <h3>Ризик №2: Несправна вентиляція</h3>
+          <p>Оцінка: Середній</p>
+        </div>
+        <div class="card-face card-face-back">
+          <h3>Контроль Ризику №2</h3>
+          <p>Регулярне техобслуговування, перевірка фільтрів</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-container" data-card-id="3">
+      <div class="card" onclick="flipCard(this.parentNode)">
+        <div class="card-face card-face-front">
+          <h3>Ризик №3: Неправильне зберігання хімікатів</h3>
+          <p>Оцінка: Високий</p>
+        </div>
+        <div class="card-face card-face-back">
+          <h3>Контроль Ризику №3</h3>
+          <p>Герметичні шафи, маркування</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-container" data-card-id="4">
+      <div class="card" onclick="flipCard(this.parentNode)">
+        <div class="card-face card-face-front">
+          <h3>Ризик №4: Напруга на платах</h3>
+          <p>Оцінка: Низький</p>
+        </div>
+        <div class="card-face card-face-back">
+          <h3>Контроль Ризику №4</h3>
+          <p>Антистатичні браслети, заземлення</p>
+        </div>
+      </div>
+    </div>
+    <div class="card-container" data-card-id="5">
+      <div class="card" onclick="flipCard(this.parentNode)">
+        <div class="card-face card-face-front">
+          <h3>Ризик №5: Перевтома оператора</h3>
+          <p>Оцінка: Середній</p>
+        </div>
+        <div class="card-face card-face-back">
+          <h3>Контроль Ризику №5</h3>
+          <p>Перерви, ротація завдань</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="to-game-btn">Пограєм?</button>
 </div>
 
 <div id="game-section">
-    <div class="game-wrap">
-        <header class="game-header">
-            <h2>Погнали!</h2>
-        </header>
-        <div class="game-board">
-            <canvas id="game" width="560" height="360"></canvas>
-            <aside class="game-sidebar">
-                <div class="game-stat">Очки: <strong id="score">0</strong></div>
-                <div class="game-stat">Найкращий рахунок: <strong id="best">0</strong></div>
-                <div class="game-controls">
-                    <button id="start">Старт/Перезапуск</button>
-                    <button id="pause">Пауза</button>
-                    <label>Швидкість<input id="speed" type="range" min="2" max="8" value="4"></label>
-                    <label>Ширина ракетки<input id="paddleWidth" type="range" min="60" max="180" value="100"></label>
-                </div>
-            </aside>
+  <div class="game-wrap">
+    <header class="game-header">
+      <h2>Погнали!</h2>
+    </header>
+    <div class="game-board">
+      <canvas id="game" width="560" height="360"></canvas>
+      <aside class="game-sidebar">
+        <div class="game-stat">Очки: <strong id="score">0</strong></div>
+        <div class="game-stat">Найкращий рахунок: <strong id="best">0</strong></div>
+        <div class="game-controls">
+          <button id="start">Старт/Перезапуск</button>
+          <button id="pause">Пауза</button>
+          <label>Швидкість<input id="speed" type="range" min="2" max="8" value="4"></label>
+          <label>Ширина ракетки<input id="paddleWidth" type="range" min="60" max="180" value="100"></label>
         </div>
+      </aside>
     </div>
+  </div>
 </div>
 
 <script>
-// === ПЕРЕКЛЮЧЕННЯ СТОРІНОК ===
 const totalCards = 5;
 const flippedCards = new Set();
 document.getElementById('start-button').addEventListener('click',()=>{document.getElementById('landing-page').style.display='none';document.getElementById('card-page').style.display='block';});
 function flipCard(container){
-    const cardEl = container.querySelector('.card');
-    const id = container.dataset.cardId;
-    cardEl.classList.toggle('is-flipped');
-    if(!flippedCards.has(id)) flippedCards.add(id);
-    if(flippedCards.size===totalCards) document.getElementById('to-game-btn').style.display='block';
+  const cardEl = container.querySelector('.card');
+  const id = container.dataset.cardId;
+  cardEl.classList.toggle('is-flipped');
+  if(!flippedCards.has(id)) flippedCards.add(id);
+  if(flippedCards.size===totalCards) document.getElementById('to-game-btn').style.display='block';
 }
 document.getElementById('to-game-btn').addEventListener('click',()=>{
-    document.getElementById('card-page').style.display='none';
-    document.getElementById('game-section').style.display='flex';
-    initializeGame();
+  document.getElementById('card-page').style.display='none';
+  document.getElementById('game-section').style.display='flex';
+  initializeGame();
 });
 
-// === ГРА ===
-// Тут вставити JS Ping-Pong зі стилізаціями білими (як у попередньому повідомленні)
+// === GAME LOGIC ===
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const startBtn = document.getElementById('start');
+const pauseBtn = document.getElementById('pause');
+const speedInput = document.getElementById('speed');
+const paddleWidthInput = document.getElementById('paddleWidth');
+
+const W=560,H=360;
+let state, paddle, ball, gameInterval, ballReleased=false;
+
+function initializeGame(){
+  state={
+    running:false, paused:false, score:0, best:Number(localStorage.getItem('pp_best')||0),
+    ballSpeedBase:+speedInput.value, paddleWidth:+paddleWidthInput.value
+  };
+  bestEl.textContent=state.best;
+  paddle={w:state.paddleWidth,h:12,x:(W-state.paddleWidth)/2,y:H-24,vx:0};
+  ball={r:8,x:W/2,y:paddle.y-8,vx:0,vy:0};
+  if(!gameInterval){gameInterval=setInterval(step,1000/60); renderLoop();}
+  draw(); // initial
+}
+
+function resetBall(){
+  ball.x=paddle.x+paddle.w/2;
+  ball.y=paddle.y-ball.r;
+  ball.vx=0; ball.vy=0;
+  ballReleased=false;
+}
+
+function resetGame(){
+  state.score=0; scoreEl.textContent=0;
+  paddle.w=state.paddleWidth; paddle.x=(W-paddle.w)/2;
+  resetBall();
+  state.running=true; state.paused=false;
+}
+
+function drawRoundedRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fill();}
+
+function draw(){
+  if(!state) return;
+  ctx.clearRect(0,0,W,H);
+  // ball
+  ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+  // paddle
+  ctx.fillStyle="#000"; drawRoundedRect(paddle.x,paddle.y,paddle.w,paddle.h,6);
+}
+
+function step(){
+  if(!state.running || state.paused) return;
+  // paddle movement clamp
+  paddle.x+=paddle.vx; if(paddle.x<0)paddle.x=0; if(paddle.x+paddle.w>W)paddle.x=W-paddle.w;
+  if(ballReleased){
+    ball.x+=ball.vx; ball.y+=ball.vy;
+    if(ball.x-ball.r<0){ball.x=ball.r; ball.vx*=-1;}
+    if(ball.x+ball.r>W){ball.x=W-ball.r; ball.vx*=-1;}
+    if(ball.y-ball.r<0){ball.y=ball.r; ball.vy*=-1;}
+    // paddle collision
+    if(ball.y+ball.r>=paddle.y && ball.y-ball.r<=paddle.y+paddle.h && ball.x>=paddle.x && ball.x<=paddle.x+paddle.w){
+      ball.y=paddle.y-ball.r; ball.vy*=-1;
+      state.score++; scoreEl.textContent=state.score;
+      if(state.score>state.best){state.best=state.score; bestEl.textContent=state.best; localStorage.setItem('pp_best',state.best);}
+    }
+    if(ball.y-ball.r>H){ resetGame(); }
+  } else {
+    // ball follows paddle
+    ball.x=paddle.x+paddle.w/2; ball.y=paddle.y-ball.r;
+  }
+}
+
+// keyboard
+let left=false,right=false;
+window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')left=true;if(e.key==='ArrowRight')right=true; if(e.key===' ' && !ballReleased){releaseBall();}});
+window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')left=false;if(e.key==='ArrowRight')right=false;});
+function releaseBall(){ ballReleased=true; const angle=Math.random()*Math.PI/2-Math.PI/4; ball.vx=state.ballSpeedBase*Math.cos(angle); ball.vy=-Math.abs(state.ballSpeedBase*Math.sin(angle)); }
+
+function updatePaddleFromKeys(){const speed=6; if(left)paddle.vx=-speed; else if(right)paddle.vx=speed; else paddle.vx=0; requestAnimationFrame(updatePaddleFromKeys);}
+updatePaddleFromKeys();
+
+// touch/mouse
+canvas.addEventListener('mousemove',handleInput);
+canvas.addEventListener('touchmove',e=>{e.preventDefault(); handleInput(e.touches[0]);});
+canvas.addEventListener('touchstart',e=>{if(!ballReleased) releaseBall();});
+canvas.addEventListener('mousedown',()=>{if(!ballReleased) releaseBall();});
+function handleInput(e){const rect=canvas.getBoundingClientRect(); const scaleX=W/rect.width; const mx=(e.clientX||e.pageX)-rect.left; paddle.x=(mx*scaleX)-paddle.w/2; if(paddle.x<0)paddle.x=0;if(paddle.x+paddle.w>W)paddle.x=W-paddle.w;}
+
+startBtn.addEventListener('click',()=>{state.ballSpeedBase=+speedInput.value; state.paddleWidth=+paddleWidthInput.value; resetGame();});
+pauseBtn.addEventListener('click',()=>{if(state.running)state.paused=!state.paused;});
+
+speedInput.addEventListener('input',()=>{state.ballSpeedBase=+speedInput.value;});
+paddleWidthInput.addEventListener('input',()=>{state.paddleWidth=+paddleWidthInput.value; paddle.w=state.paddleWidth; paddle.x=Math.min(paddle.x,W-paddle.w);});
+
+function renderLoop(){ draw(); requestAnimationFrame(renderLoop); }
 </script>
 
 </body>
