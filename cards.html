@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оцінка ризиків</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cards-page">
+
+    <div class="cards-container">
+        <div class="card" data-flipped="false">
+            <div class="card-inner" onclick="flipCard(this.parentNode)">
+                <div class="card-face card-front front-red-border">
+                    <h2>Ризик 1</h2>
+                    <p>Небезпека: Висока напруга</p>
+                    <p>Натисніть, щоб оцінити</p>
+                </div>
+                <div class="card-face card-back back-green-border">
+                    <h3>Оцінка ризику</h3>
+                    <p>Імовірність: Низька</p>
+                    <p>Наслідки: Катастрофічні</p>
+                    <p>Заходи контролю: Наявні</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" data-flipped="false">
+            <div class="card-inner" onclick="flipCard(this.parentNode)">
+                <div class="card-face card-front front-red-border">
+                    <h2>Ризик 2</h2>
+                    <p>Небезпека: Падіння з висоти</p>
+                    <p>Натисніть, щоб оцінити</p>
+                </div>
+                <div class="card-face card-back back-green-border">
+                    <h3>Оцінка ризику</h3>
+                    <p>Імовірність: Середня</p>
+                    <p>Наслідки: Значні</p>
+                    <p>Заходи контролю: Регулярний огляд</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" data-flipped="false">
+            <div class="card-inner" onclick="flipCard(this.parentNode)">
+                <div class="card-face card-front front-red-border">
+                    <h2>Ризик 3</h2>
+                    <p>Небезпека: Хімічні випари</p>
+                    <p>Натисніть, щоб оцінити</p>
+                </div>
+                <div class="card-face card-back back-green-border">
+                    <h3>Оцінка ризику</h3>
+                    <p>Імовірність: Низька</p>
+                    <p>Наслідки: Помірні</p>
+                    <p>Заходи контролю: Витяжна вентиляція</p>
+                </div>
+            </div>
+        </div>
+        
+        </div>
+
+    <a href="index.html#pong" id="play-button" class="play-button hidden-button">Пограєм?</a>
+
+    <script>
+        // --- ЛОГІКА ПЕРЕГОРТАННЯ КАРТОК (JavaScript) ---
+
+        const playButton = document.getElementById('play-button');
+        const cards = document.querySelectorAll('.card');
+        
+        // Функція перегортання картки
+        function flipCard(cardElement) {
+            // Перемикання класу для анімації перегортання
+            cardElement.classList.toggle('flipped');
+            
+            // Оновлення стану (потрібно для перевірки всіх карток)
+            const isFlipped = cardElement.classList.contains('flipped');
+            cardElement.setAttribute('data-flipped', isFlipped);
+            
+            // Перевірка, чи перегорнуто всі картки
+            checkAllFlipped();
+        }
+
+        // Функція перевірки всіх карток
+        function checkAllFlipped() {
+            let allFlipped = true;
+            
+            // Ітерація по всіх картках
+            cards.forEach(card => {
+                if (card.getAttribute('data-flipped') === 'false') {
+                    allFlipped = false;
+                }
+            });
+
+            // Якщо всі картки перегорнуті, показуємо кнопку
+            if (allFlipped) {
+                playButton.classList.remove('hidden-button');
+            } else {
+                playButton.classList.add('hidden-button');
+            }
+        }
+        
+    </script>
+
+</body>
+</html>
