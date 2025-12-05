@@ -9,7 +9,7 @@
 /* === ЗМІННІ === */
 :root {
     --bg-light: #f4f4f4;
-    --bg-dark: #1a1a1a; /* Чорний або дуже темний фон */
+    --bg-dark: #1a1a1a; /* Основний темний фон */
     --card-border-front: #ff0000; /* Червона рамка (Ризик) */
     --card-border-back: #00ff00; /* Зелена рамка (Контроль) */
     --accent: #000;
@@ -21,7 +21,7 @@ body {
     color:#333;
     perspective:1000px;
 }
-/* ТИТУЛЬНА */
+/* === ТИТУЛЬНА СТОРІНКА === */
 #landing-page {
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     height:100vh; background-color: var(--bg-dark); color:white; text-align:center; padding:20px;
@@ -29,9 +29,13 @@ body {
 #landing-page h1 { font-size:2.5em; margin-bottom:40px; font-weight:700; }
 #start-button { padding:12px 25px; font-size:1em; cursor:pointer; background-color:white; color:var(--bg-dark); border:none; border-radius:6px; transition:0.3s;}
 #start-button:hover{background-color:#ddd;}
-/* КАРТКИ */
+
+/* === СТОРІНКА КАРТОК === */
 #card-page { display:none; padding:20px; min-height:100vh; }
-.cards-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:30px; justify-content:center; max-width:1200px; margin:0 auto; }
+.cards-grid { 
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:30px; 
+    justify-content:center; max-width:1200px; margin:0 auto; 
+}
 .card-container { width:100%; height:200px; perspective:1000px; cursor:pointer; }
 .card { 
     width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.8s; border-radius:12px;
@@ -41,8 +45,8 @@ body {
 .card-face { 
     position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; 
     display:flex; flex-direction:column; justify-content:space-around; align-items:center; border-radius:12px; border:3px solid; 
-    background-color: var(--bg-dark); /* ЗМІНА: ЧОРНИЙ ФОН */
-    color: white; /* ЗМІНА: БІЛИЙ ТЕКСТ */
+    background-color: var(--bg-dark); /* ЧОРНИЙ ФОН */
+    color: white; /* БІЛИЙ ТЕКСТ */
 }
 .card-face-front { 
     border-color: var(--card-border-front); /* ЧЕРВОНА РАМКА */
@@ -51,13 +55,16 @@ body {
     transform:rotateY(180deg); 
     border-color: var(--card-border-back); /* ЗЕЛЕНА РАМКА */
 }
+
 /* КНОПКА переходу до гри */
 #to-game-btn { 
-    display:none; margin:20px auto; padding:12px 25px; font-size:1em; background-color:#000; color:#fff; border:none; border-radius:6px; cursor:pointer; transition:0.3s; 
+    display:none; margin:20px auto; padding:12px 25px; font-size:1em; background-color:#000; color:#fff; border:none; border-radius:6px; 
+    cursor:pointer; transition:0.3s; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 #to-game-btn:hover{ background-color:#333;}
-/* ГРА */
+
+/* === СЕКЦІЯ ГРИ === */
 #game-section { 
     display:none; min-height:100vh; background-color:#e0e0e0; 
     color:#000; padding:20px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex-direction:column; 
@@ -66,11 +73,13 @@ body {
 .game-header h2 { font-size:1.5em; margin:0; color:#000; text-align:center; margin-bottom:12px; }
 .game-board { display:flex; gap:12px; flex-direction:column; align-items:center; }
 canvas { 
-    background:#00111b; 
+    background:#00111b; /* Темне ігрове поле */
     border-radius:6px; width:100%; max-width:560px; height:auto; aspect-ratio:560/360; display:block; border:1px solid #333; 
 }
 .game-sidebar { width:220px; max-width:100%; padding:12px; border-radius:8px; background:#f0f0f0; margin-top:12px; }
 .game-stat strong { display:block; font-size:20px; color:#000; }
+.game-controls button { background:transparent; border:1px solid #000; padding:6px; border-radius:4px; font-size:0.9em; cursor:pointer; }
+.game-controls button:hover { background:#ddd; }
 .game-controls label { display:block; font-size: 0.9em; margin-top: 5px; } 
 .game-controls input[type="range"] { width: 100%; margin-top: 2px; }
 
@@ -183,29 +192,34 @@ canvas {
 </div>
 
 <script>
+// === КАРТКИ ЛОГІКА ===
 const totalCards = 5;
 const flippedCards = new Set();
 
+// Перехід на сторінку карток
 document.getElementById('start-button').addEventListener('click', () => {
     document.getElementById('landing-page').style.display = 'none';
     document.getElementById('card-page').style.display = 'block';
 });
 
+// Перегортання картки та перевірка на завершення
 function flipCard(container) {
     const cardEl = container.querySelector('.card');
     const id = container.dataset.cardId;
     cardEl.classList.toggle('is-flipped');
     if (!flippedCards.has(id)) flippedCards.add(id);
+    // Показати кнопку гри, коли перегорнуто всі картки
     if (flippedCards.size === totalCards) document.getElementById('to-game-btn').style.display = 'block';
 }
 
+// Перехід до гри
 document.getElementById('to-game-btn').addEventListener('click', () => {
     document.getElementById('card-page').style.display = 'none';
     document.getElementById('game-section').style.display = 'flex';
     initializeGame();
 });
 
-// === GAME LOGIC ===
+// === ЛОГІКА ГРИ "PING-PONG" ===
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
@@ -215,7 +229,7 @@ const pauseBtn = document.getElementById('pause');
 const speedInput = document.getElementById('speed');
 const paddleWidthInput = document.getElementById('paddleWidth');
 
-const W = 560, H = 360;
+const W = 560, H = 360; // Розміри канвасу
 let state, paddle, ball, gameInterval, ballReleased = false;
 
 function initializeGame() {
@@ -226,7 +240,10 @@ function initializeGame() {
     bestEl.textContent = state.best;
     paddle = { w: state.paddleWidth, h: 12, x: (W - state.paddleWidth) / 2, y: H - 24, vx: 0 };
     ball = { r: 8, x: W / 2, y: paddle.y - 8, vx: 0, vy: 0 };
-    if (!gameInterval) { gameInterval = setInterval(step, 1000 / 60); renderLoop(); }
+    if (!gameInterval) { 
+        gameInterval = setInterval(step, 1000 / 60); // Логіка гри (60 FPS)
+        renderLoop(); // Рендеринг (використовує requestAnimationFrame)
+    }
     resetGame(); 
 }
 
@@ -239,32 +256,37 @@ function resetBall() {
 
 function resetGame() {
     state.score = 0; scoreEl.textContent = 0;
-    paddle.w = state.paddleWidth; paddle.x = (W - paddle.w) / 2;
+    paddle.w = state.paddleWidth; 
+    paddle.x = (W - paddle.w) / 2;
     resetBall();
-    state.running = true; state.paused = false;
+    state.running = true; 
+    state.paused = false;
 }
 
+// Допоміжна функція для малювання заокругленого прямокутника
 function drawRoundedRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill(); }
 
+// Функція малювання
 function draw() {
     if (!state) return;
     ctx.clearRect(0, 0, W, H);
-    // net (сітка)
+    // Сітка (додано для кращого вигляду)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; 
     for(let i=0; i<H; i+=20) ctx.fillRect(W/2 - 1, i + 6, 2, 12);
 
-    // ball
+    // М'яч
     ctx.fillStyle = "#fff"; 
     ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
     
-    // paddle
+    // Ракетка
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)"; 
     drawRoundedRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
 }
 
+// Основний крок логіки гри
 function step() {
     if (!state.running || state.paused) return;
-    // paddle movement clamp
+    // Рух ракетки (обмежуємо по краях)
     paddle.x += paddle.vx; 
     if (paddle.x < 0) paddle.x = 0; 
     if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
@@ -272,37 +294,48 @@ function step() {
     if (ballReleased) {
         ball.x += ball.vx; ball.y += ball.vy;
         
-        // Wall collisions (Left/Right/Top)
+        // Відбиття від стін (ліво/право/верх)
         if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx *= -1; }
         if (ball.x + ball.r > W) { ball.x = W - ball.r; ball.vx *= -1; }
         if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -1; }
         
-        // Paddle collision 
+        // Зіткнення з ракеткою (логіка відбиття під кутом)
         if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h && ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
+            // Розрахунок точки удару відносно центру ракетки (-1 до 1)
             const relative = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2); 
             const speed = Math.hypot(ball.vx, ball.vy);
-            const maxBounce = Math.PI / 3; 
+            const maxBounce = Math.PI / 3; // Максимальний кут відбиття (60 градусів)
             const angle = relative * maxBounce + Math.PI / 2;
             
             ball.vx = speed * Math.cos(angle);
-            ball.vy = -Math.abs(speed * Math.sin(angle)); 
+            ball.vy = -Math.abs(speed * Math.sin(angle)); // Завжди летить вгору
 
             state.score++; scoreEl.textContent = state.score;
             if (state.score > state.best) { state.best = state.score; bestEl.textContent = state.best; localStorage.setItem('pp_best', state.best); }
         }
 
-        // Bottom miss -> Game Over
+        // Промах (падіння за нижню межу) -> Game Over
         if (ball.y - ball.r > H) { 
             state.running = false;
             resetGame(); 
         } 
     } else {
-        // Ball follows paddle before release
+        // М'яч слідує за ракеткою до випуску
         ball.x = paddle.x + paddle.w / 2; ball.y = paddle.y - ball.r;
     }
 }
 
-// keyboard
+// Функція випуску м'яча
+function releaseBall() { 
+    ballReleased = true; 
+    const speed = state.ballSpeedBase;
+    // Випадковий кут вгору
+    const angle = Math.random() * Math.PI / 2 - Math.PI / 4; 
+    ball.vx = speed * Math.cos(angle); 
+    ball.vy = -Math.abs(speed * Math.sin(angle)); 
+}
+
+// Керування з клавіатури
 let left = false, right = false;
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') left = true;
@@ -311,32 +344,37 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => { if (e.key === 'ArrowLeft') left = false; if (e.key === 'ArrowRight') right = false; });
 
-function releaseBall() { 
-    ballReleased = true; 
-    const speed = state.ballSpeedBase;
-    const angle = Math.random() * Math.PI / 2 - Math.PI / 4; 
-    ball.vx = speed * Math.cos(angle); 
-    ball.vy = -Math.abs(speed * Math.sin(angle)); 
+function updatePaddleFromKeys() { 
+    const speed = 6; 
+    if (left) paddle.vx = -speed; 
+    else if (right) paddle.vx = speed; 
+    else paddle.vx = 0; 
+    requestAnimationFrame(updatePaddleFromKeys); 
 }
+updatePaddleFromKeys(); // Запуск циклу оновлення ракетки
 
-function updatePaddleFromKeys() { const speed = 6; if (left) paddle.vx = -speed; else if (right) paddle.vx = speed; else paddle.vx = 0; requestAnimationFrame(updatePaddleFromKeys); }
-updatePaddleFromKeys();
-
-// touch/mouse
+// Керування мишею/дотиком
 canvas.addEventListener('mousemove', handleInput);
 canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0]); });
 canvas.addEventListener('touchstart', e => { if (!ballReleased && state.running) releaseBall(); }); 
 canvas.addEventListener('mousedown', () => { if (!ballReleased && state.running) releaseBall(); }); 
+
 function handleInput(e) {
     if (!state.running || state.paused) return; 
     const rect = canvas.getBoundingClientRect(); 
     const scaleX = W / rect.width; 
+    // Координата курсора/дотику відносно канвасу
     const mx = (e.clientX || e.pageX) - rect.left; 
+    
+    // Центрування ракетки під курсором/дотиком
     paddle.x = (mx * scaleX) - paddle.w / 2; 
+    
+    // Обмеження ракетки
     if (paddle.x < 0) paddle.x = 0; 
     if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
 }
 
+// Обробники кнопок
 startBtn.addEventListener('click', () => { 
     state.ballSpeedBase = +speedInput.value; 
     state.paddleWidth = +paddleWidthInput.value; 
@@ -344,9 +382,11 @@ startBtn.addEventListener('click', () => {
 });
 pauseBtn.addEventListener('click', () => { if (state.running) state.paused = !state.paused; });
 
+// Обробники повзунків
 speedInput.addEventListener('input', () => { state.ballSpeedBase = +speedInput.value; });
 paddleWidthInput.addEventListener('input', () => { state.paddleWidth = +paddleWidthInput.value; paddle.w = state.paddleWidth; paddle.x = Math.min(paddle.x, W - paddle.w); });
 
+// Цикл рендерингу (малювання)
 function renderLoop() { draw(); requestAnimationFrame(renderLoop); }
 </script>
 
