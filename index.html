@@ -192,7 +192,6 @@ function initGame() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     
-    // Перевіряємо, чи гра вже налаштована (ініціалізована)
     if (!gameInitialized) {
         gameInitialized = true;
         
@@ -206,25 +205,25 @@ function initGame() {
         speedRange.oninput = updateSpeed;
         paddleRange.oninput = updatePaddleWidth;
 
-        // Перший запуск циклу анімації
         loop();
     }
     
-    // Скидання/початкові налаштування
-    resetGameObjects();
+    // Спочатку робимо ресайз, потім створюємо об’єкти гри
     resize();
+    resetGameObjects();
 }
 
 function resize() {
     const uiBarHeight = document.getElementById('ui-bar').offsetHeight;
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight - uiBarHeight;
-    
+
     if (paddle) {
-        paddle.x = Math.min(paddle.x, W - paddle.w);
         paddle.y = H - 30;
+        paddle.x = Math.min(paddle.x, W - paddle.w);
     }
-    if (ball && !isRunning) {
+
+    if (ball) {
         ball.x = W / 2;
         ball.y = H / 2;
     }
