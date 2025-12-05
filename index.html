@@ -1,162 +1,256 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Флеш-картки зі свайпом та прогрес-баром</title>
-<style>
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #000;
-        color: #fff;
-        height: 100vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал оцінки ризиків для дільниці SMT</title>
+    <style>
+        /* === Базові стилі та загальний фон === */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            perspective: 1000px; /* Додаємо перспективу для 3D ефекту */
+        }
 
-    /* Прогрес-бар */
-    .progress-container {
-        width: 100%;
-        height: 6px;
-        background: rgba(255,255,255,0.2);
-    }
+        /* === Титульна Сторінка === */
+        #landing-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            background-color: #1a1a1a; /* Темний фон */
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-    .progress-bar {
-        width: 0%;
-        height: 100%;
-        background: #f1c40f;
-        transition: width 0.3s ease;
-    }
+        #landing-page h1 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
 
-    /* Контейнер картки */
-    .flashcard-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-    }
+        #start-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: white; /* Біла кнопка */
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Легка тінь */
+        }
 
-    .flashcard {
-        width: 100%;
-        max-width: 480px;
-        height: 75vh;
-        background: #111;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        transform-style: preserve-3d;
-        transition: transform 0.6s;
-        cursor: pointer;
-    }
+        #start-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
 
-    .flashcard.flipped {
-        transform: rotateY(180deg);
-    }
+        /* === Сторінка з Картками === */
+        #card-page {
+            display: none; /* Спочатку прихована */
+            padding: 20px;
+            background-color: #f4f4f4;
+            min-height: 100vh;
+        }
 
-    .flashcard .front,
-    .flashcard .back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        padding: 20px;
-        backface-visibility: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 30px;
-        border-radius: 16px;
-        text-align: center;
-    }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Адаптивна сітка */
+            gap: 30px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    .flashcard .back {
-        transform: rotateY(180deg);
-        background: #222;
-    }
-</style>
+        /* === Стилі для Картки, що Перевертається === */
+        .card-container {
+            width: 100%;
+            height: 200px; /* Фіксована висота, можна змінити */
+            perspective: 1000px; /* Перспектива для 3D ефекту */
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d; /* Зберігає 3D позицію дочірніх елементів */
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1); /* Анімація перегортання */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Об'ємна тінь */
+            border-radius: 12px;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg); /* Перегортання при додаванні класу */
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Приховує зворотну сторону, поки вона не перегорнута */
+            background-color: #1a1a1a; /* Чорний колір картки */
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            border: 4px solid; /* Стиль рамки */
+            transition: border-color 0.8s;
+        }
+
+        /* Лицьова сторона: Червона рамка */
+        .card-face-front {
+            border-color: #ff0000; /* Червона рамка */
+        }
+
+        /* Зворотна сторона: Зелена рамка */
+        .card-face-back {
+            transform: rotateY(180deg); /* Початково повернута */
+            border-color: #00ff00; /* Зелена рамка */
+        }
+        
+        /* Стилі для контенту картки */
+        .card-face h3 {
+            margin-top: 0;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .card-face p {
+            font-size: 0.9em;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        /* === Адаптивність (для альбомної орієнтації та малих екранів) === */
+        @media (max-width: 600px) {
+            .cards-grid {
+                grid-template-columns: 1fr; /* Одна картка на рядок на маленьких екранах */
+            }
+            .card-container {
+                height: 250px; /* Збільшуємо висоту для кращої читабельності на мобільному */
+            }
+            #landing-page h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-</div>
-
-<div class="flashcard-container">
-    <div id="flashcard" class="flashcard">
-        <div class="front" id="frontText">Front</div>
-        <div class="back" id="backText">Back</div>
+    <div id="landing-page">
+        <h1>Журнал оцінки ризиків для дільниці SMT</h1>
+        <button id="start-button">СТАРТ</button>
     </div>
-</div>
 
-<script>
-const flashcard = document.getElementById("flashcard");
-const frontText = document.getElementById("frontText");
-const backText = document.getElementById("backText");
-const progressBar = document.getElementById("progressBar");
+    <div id="card-page">
+        <div class="cards-grid">
+            <div class="card-container" onclick="flipCard(this)">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h3>Ризик №1: Назва Ризику</h3>
+                        <p>Коротка інформація про ризик на лицьовій стороні.</p>
+                        <p>Натисніть для детальної інформації!</p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h3>Деталі Ризику №1</h3>
+                        <p>Повний опис, оцінка, заходи контролю. (Заповніть цю частину)</p>
+                        <p>Статус: Керується</p>
+                    </div>
+                </div>
+            </div>
 
-// Приклади карток
-const cards = [
-    { front: "Dog", back: "Собака" },
-    { front: "Cat", back: "Кіт" },
-    { front: "House", back: "Дім" },
-    { front: "Car", back: "Машина" },
-    { front: "Book", back: "Книга" },
-];
+            <div class="card-container" onclick="flipCard(this)">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h3>Ризик №2: Назва Ризику</h3>
+                        <p>Коротка інформація про ризик на лицьовій стороні.</p>
+                        <p>Натисніть для детальної інформації!</p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h3>Деталі Ризику №2</h3>
+                        <p>Повний опис, оцінка, заходи контролю. (Заповніть цю частину)</p>
+                        <p>Статус: Прийнятний</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-container" onclick="flipCard(this)">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h3>Ризик №3: Назва Ризику</h3>
+                        <p>Коротка інформація про ризик на лицьовій стороні.</p>
+                        <p>Натисніть для детальної інформації!</p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h3>Деталі Ризику №3</h3>
+                        <p>Повний опис, оцінка, заходи контролю. (Заповніть цю частину)</p>
+                        <p>Статус: Високий</p>
+                    </div>
+                </div>
+            </div>
 
-let currentIndex = 0;
+            <div class="card-container" onclick="flipCard(this)">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h3>Ризик №4: Назва Ризику</h3>
+                        <p>Коротка інформація про ризик на лицьовій стороні.</p>
+                        <p>Натисніть для детальної інформації!</p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h3>Деталі Ризику №4</h3>
+                        <p>Повний опис, оцінка, заходи контролю. (Заповніть цю частину)</p>
+                        <p>Статус: Низький</p>
+                    </div>
+                </div>
+            </div>
 
-// Оновлення картки та прогрес-бару
-function updateCard() {
-    flashcard.classList.remove("flipped"); // скидання перевороту
-    frontText.textContent = cards[currentIndex].front;
-    backText.textContent = cards[currentIndex].back;
+            <div class="card-container" onclick="flipCard(this)">
+                <div class="card">
+                    <div class="card-face card-face-front">
+                        <h3>Ризик №5: Назва Ризику</h3>
+                        <p>Коротка інформація про ризик на лицьовій стороні.</p>
+                        <p>Натисніть для детальної інформації!</p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <h3>Деталі Ризику №5</h3>
+                        <p>Повний опис, оцінка, заходи контролю. (Заповніть цю частину)</p>
+                        <p>Статус: Потребує уваги</p>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
+    </div>
 
-    const progress = ((currentIndex + 1) / cards.length) * 100;
-    progressBar.style.width = progress + "%";
-}
-
-// Перевертання картки
-flashcard.addEventListener("click", () => {
-    flashcard.classList.toggle("flipped");
-});
-
-// ==== Свайпи для гортання карток ====
-let startX = 0;
-let endX = 0;
-
-flashcard.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-});
-
-flashcard.addEventListener("touchmove", (e) => {
-    endX = e.touches[0].clientX;
-});
-
-flashcard.addEventListener("touchend", () => {
-    const diff = endX - startX;
-
-    if (Math.abs(diff) > 50) { // мінімальний поріг свайпу
-        if (diff < 0) { // свайп вліво → наступна картка
-            currentIndex = (currentIndex + 1) % cards.length;
-        } else {       // свайп вправо → попередня картка
-            currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+    <script>
+        // Функція для перегортання картки
+        function flipCard(container) {
+            // Шукаємо елемент 'card', який знаходиться всередині 'card-container'
+            const card = container.querySelector('.card');
+            
+            // Додаємо/видаляємо клас 'is-flipped' для перегортання
+            card.classList.toggle('is-flipped');
         }
-        updateCard();
-    }
 
-    startX = 0;
-    endX = 0;
-});
-
-// Початкове завантаження
-updateCard();
-</script>
-
+        // Функція для керування відображенням сторінок
+        document.getElementById('start-button').addEventListener('click', function() {
+            // Приховуємо титульну сторінку
+            document.getElementById('landing-page').style.display = 'none';
+            
+            // Відображаємо сторінку з картками
+            document.getElementById('card-page').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
