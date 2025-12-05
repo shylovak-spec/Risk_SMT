@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <div id="title-screen" class="screen title-page active-screen">
+    <div id="title-screen" class="screen title-page">
         <div class="title-container">
             <h1 class="title-text">Журнал оцінки ризиків для дільниці SMT</h1>
             <a href="cards.html" class="start-button">Старт</a>
@@ -37,7 +37,6 @@
         // --- ЛОГІКА ГРИ ПІНГ-ПОНГ (JavaScript) ---
 
         const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
         const pauseButton = document.getElementById('pause-button');
         const restartButton = document.getElementById('restart-button');
@@ -45,6 +44,10 @@
         const sizeSlider = document.getElementById('size-slider');
         const startOverlay = document.getElementById('start-overlay');
         const pongScreen = document.getElementById('pong-screen');
+        const titleScreen = document.getElementById('title-screen');
+        
+        // Перевірка, чи Canvas доступний, перш ніж отримати контекст
+        const ctx = canvas.getContext('2d');
 
         let game;
         let animationFrameId;
@@ -68,19 +71,19 @@
 
                 // Налаштування ракетки
                 this.paddle = {
-                    height: 100, // Початкова висота (змінюється повзунком)
+                    height: 100,
                     width: 10,
                     x: 20,
                     y: (canvas.height - 100) / 2
                 };
             }
 
-            // Оновлення розмірів відповідно до екрана
             resize() {
+                // Оновлення розмірів Canvas, щоб він займав всю доступну площу
+                const controlPanelHeight = document.querySelector('.control-panel').offsetHeight || 50;
                 canvas.width = pongScreen.clientWidth;
-                canvas.height = pongScreen.clientHeight - document.querySelector('.control-panel').offsetHeight;
+                canvas.height = pongScreen.clientHeight - controlPanelHeight;
                 
-                // Переміщення м'яча та ракетки у відсотковому співвідношенні, якщо вони були на екрані
                 if (game) {
                     this.ball.x = canvas.width / 2;
                     this.ball.y = canvas.height / 2;
@@ -88,7 +91,6 @@
                 }
             }
 
-            // Запуск гри
             start() {
                 if (this.isRunning) return;
                 this.isRunning = true;
@@ -96,8 +98,9 @@
                 this.score = 0;
                 this.ball.x = canvas.width / 2;
                 this.ball.y = canvas.height / 2;
-                // Забезпечення різноманітної траєкторії
-                const angle = Math.random() * Math.PI / 2 + Math.PI / 4; // Кут між 45 і 135 градусами
+                
+                // Різноманітна траєкторія
+                const angle = Math.random() * Math.PI / 2 + Math.PI / 4; 
                 const directionX = Math.random() < 0.5 ? 1 : -1;
                 this.ball.dx = directionX * this.ball.baseSpeed * Math.cos(angle);
                 this.ball.dy = this.ball.baseSpeed * Math.sin(angle);
@@ -107,7 +110,6 @@
                 this.loop();
             }
 
-            // Цикл гри
             loop() {
                 if (!this.isRunning || this.isPaused) return;
 
@@ -116,42 +118,30 @@
                 animationFrameId = requestAnimationFrame(() => this.loop());
             }
 
-            // Оновлення логіки
             update() {
-                // Рух м'яча
                 this.ball.x += this.ball.dx;
                 this.ball.y += this.ball.dy;
 
-                // Відбиття від верхньої та нижньої стінок (межі екрана)
+                // Відбиття від верхньої та нижньої стінок
                 if (this.ball.y + this.ball.radius > canvas.height || this.ball.y - this.ball.radius < 0) {
-                    this.ball.dy *= -1; // Зміна напрямку по Y
+                    this.ball.dy *= -1;
                 }
 
-                // Втрата м'яча (права стінка)
-                if (this.ball.x + this.ball.radius > canvas.width) {
-                    this.gameOver();
-                    return;
-                }
-
-                // Відбиття від ракетки (ліва стінка)
+                // Відбиття від ракетки
                 if (this.ball.x - this.ball.radius < this.paddle.x + this.paddle.width &&
                     this.ball.y > this.paddle.y &&
                     this.ball.y < this.paddle.y + this.paddle.height &&
                     this.ball.dx < 0) {
                     
-                    // Збільшення балів
                     this.score++;
                     this.updateScore();
                     
-                    // Зміна напрямку по X
                     this.ball.dx *= -1; 
                     
-                    // Зміна траєкторії залежно від місця удару
+                    // Зміна траєкторії (кут відбиття)
                     const relativeIntersectY = (this.paddle.y + (this.paddle.height / 2)) - this.ball.y;
                     const normalizedRelativeIntersectionY = relativeIntersectY / (this.paddle.height / 2);
-                    const bounceAngle = normalizedRelativeIntersectionY * (Math.PI / 4); // Макс 45 градусів
-                    
-                    // Застосування швидкості
+                    const bounceAngle = normalizedRelativeIntersectionY * (Math.PI / 4); 
                     const currentSpeed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
                     
                     this.ball.dx = currentSpeed * Math.cos(bounceAngle);
@@ -162,31 +152,30 @@
                 if (this.ball.x - this.ball.radius < 0) {
                     this.gameOver();
                 }
+
+                // Втрата м'яча (права стінка)
+                if (this.ball.x + this.ball.radius > canvas.width) {
+                    this.gameOver();
+                }
             }
 
-            // Малювання
             draw() {
-                // Очищення екрана
                 ctx.fillStyle = '#000000'; // Чорний фон
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Малювання м'яча
                 ctx.fillStyle = '#FFFFFF'; // Білий м'яч
                 ctx.beginPath();
                 ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Малювання ракетки
                 ctx.fillStyle = '#FFFFFF'; // Біла ракетка
                 ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
             }
 
-            // Оновлення балів на екрані
             updateScore() {
                 scoreElement.textContent = this.score;
             }
 
-            // Пауза гри
             pause() {
                 this.isPaused = !this.isPaused;
                 pauseButton.textContent = this.isPaused ? 'Продовжити' : 'Пауза';
@@ -195,7 +184,6 @@
                 }
             }
             
-            // Кінець гри
             gameOver() {
                 this.isRunning = false;
                 cancelAnimationFrame(animationFrameId);
@@ -203,29 +191,56 @@
                 startOverlay.style.display = 'flex';
             }
             
-            // Рестарт гри
             restart() {
-                this.gameOver(); // Зупиняємо поточний цикл
-                this.start(); // Запускаємо новий
+                this.gameOver(); 
+                this.start();
             }
         }
 
-        // --- ОБРОБНИКИ ПОДІЙ ---
+        // --- ЛОГІКА ПЕРЕМИКАННЯ ЕКРАНІВ ТА ОБРОБНИКИ ПОДІЙ ---
 
-        // Ініціалізація гри при завантаженні сторінки з грою
-        if (pongScreen.classList.contains('active-screen') || window.location.hash === '#pong') {
-            game = new PongGame();
-            game.resize(); // Встановлення початкових розмірів
+        // Функція для активації екрана гри (викликається при завантаженні з #pong або при зміні хешу)
+        function activatePongScreen() {
+            if (window.location.hash === '#pong') {
+                // Приховуємо титульний екран і показуємо екран гри
+                titleScreen.classList.remove('active-screen');
+                pongScreen.classList.add('active-screen');
+                
+                // Ініціалізація та налаштування гри
+                if (!game) {
+                    game = new PongGame();
+                }
+                game.resize(); // Обов'язково оновлюємо розміри
+                
+                startOverlay.textContent = 'Натисніть для запуску!';
+                startOverlay.style.display = 'flex';
+                
+                // Зупиняємо, якщо гра була випадково запущена
+                if(game.isRunning) game.gameOver(); 
+                
+                game.isPaused = false;
+                pauseButton.textContent = 'Пауза';
+
+            } else {
+                // Якщо хешу немає, показуємо титульний екран
+                titleScreen.classList.add('active-screen');
+                pongScreen.classList.remove('active-screen');
+            }
         }
+        
+        // 1. АКТИВАЦІЯ ЕКРАНА ПРИ ПЕРШОМУ ЗАВАНТАЖЕННІ
+        activatePongScreen();
+
+        // 2. АКТИВАЦІЯ ЕКРАНА ПРИ ЗМІНІ ХЕШУ (наприклад, кнопка "Пограєм?")
+        window.addEventListener('hashchange', activatePongScreen);
 
         // Обробник для переміщення ракетки (подія touchmove на мобільних)
         canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault(); // Запобігання прокручуванню сторінки
+            e.preventDefault(); 
             if (game && game.isRunning && !game.isPaused) {
-                // Визначаємо позицію дотику
+                // Визначаємо позицію дотику відносно ігрового поля
                 let touchY = e.touches[0].clientY - pongScreen.offsetTop - document.querySelector('.control-panel').offsetHeight;
                 
-                // Переміщення ракетки
                 game.paddle.y = touchY - game.paddle.height / 2;
 
                 // Запобігання виходу за межі
@@ -252,19 +267,19 @@
         // Повзунок швидкості
         speedSlider.addEventListener('input', (e) => {
             const speed = parseInt(e.target.value);
-            const multiplier = speed / 5; // Зміна швидкості відносно початкової 5
+            const multiplier = speed / 5;
             
             if (game) {
-                 // Оновлюємо базову швидкість
                 game.ball.baseSpeed = 5 * multiplier;
                 
-                // Зберігаємо поточний напрямок, але змінюємо швидкість
-                const currentDirectionX = Math.sign(game.ball.dx);
-                const currentDirectionY = Math.sign(game.ball.dy);
-                
+                const currentMagnitude = Math.sqrt(game.ball.dx * game.ball.dx + game.ball.dy * game.ball.dy);
+                const ratioX = game.ball.dx / currentMagnitude;
+                const ratioY = game.ball.dy / currentMagnitude;
+
                 // Застосовуємо нову швидкість
-                game.ball.dx = currentDirectionX * game.ball.baseSpeed * (Math.abs(game.ball.dx) / Math.sqrt(game.ball.dx * game.ball.dx + game.ball.dy * game.ball.dy));
-                game.ball.dy = currentDirectionY * game.ball.baseSpeed * (Math.abs(game.ball.dy) / Math.sqrt(game.ball.dx * game.ball.dx + game.ball.dy * game.ball.dy));
+                const newSpeed = game.ball.baseSpeed;
+                game.ball.dx = newSpeed * ratioX;
+                game.ball.dy = newSpeed * ratioY;
             }
         });
 
@@ -272,7 +287,6 @@
         sizeSlider.addEventListener('input', (e) => {
             if (game) {
                 game.paddle.height = parseInt(e.target.value);
-                // Коригуємо положення, щоб ракетка не виходила за межі при зміні розміру
                 if (game.paddle.y + game.paddle.height > canvas.height) {
                     game.paddle.y = canvas.height - game.paddle.height;
                 }
@@ -282,24 +296,6 @@
         // Адаптивність при зміні розміру вікна
         window.addEventListener('resize', () => {
             if(game) game.resize();
-        });
-        
-        // Перехід на екран гри з "cards.html"
-        window.addEventListener('hashchange', () => {
-            if (window.location.hash === '#pong') {
-                document.getElementById('title-screen').classList.remove('active-screen');
-                pongScreen.classList.add('active-screen');
-                if (!game) {
-                    game = new PongGame();
-                    game.resize();
-                }
-                // Налаштовуємо початковий стан гри
-                startOverlay.textContent = 'Натисніть для запуску!';
-                startOverlay.style.display = 'flex';
-                if(game.isRunning) game.gameOver();
-                game.isPaused = false;
-                pauseButton.textContent = 'Пауза';
-            }
         });
     </script>
 
