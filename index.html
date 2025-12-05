@@ -1,415 +1,307 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Журнал оцінки ризиків для дільниці SMT</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght400;700&display=swap" rel="stylesheet">
-<style>
-/* === ЗМІННІ === */
-:root {
-    --bg-light: #fff; /* ВИПРАВЛЕНО: Білий фон для сторінки карток і гри */
-    --bg-dark: #1a1a1a; /* Чорний фон для карток і титулки */
-    --card-border-front: #ff0000; /* Червона рамка (Ризик) */
-    --card-border-back: #00ff00; /* Зелена рамка (Контроль) */
-    --accent: #000;
-}
-/* === ФІКС: ГАРАНТУЄМО ПОВНУ ВИСОТУ СТОРІНКИ === */
-html, body {
-    height: 100%;
-}
-body {
-    font-family: 'Roboto', sans-serif;
-    margin:0; padding:0;
-    background-color: var(--bg-light); /* ВИПРАВЛЕНО: Білий фон для body */
-    color:#333;
-    perspective:1000px;
-}
-/* === ТИТУЛЬНА СТОРІНКА === */
-#landing-page {
-    display:flex; flex-direction:column; justify-content:center; align-items:center;
-    height:100vh; background-color: var(--bg-dark); color:white; text-align:center; padding:20px;
-}
-#landing-page h1 { font-size:2.5em; margin-bottom:40px; font-weight:700; }
-#start-button { padding:12px 25px; font-size:1em; cursor:pointer; background-color:white; color:var(--bg-dark); border:none; border-radius:6px; transition:0.3s;}
-#start-button:hover{background-color:#ddd;}
-
-/* === СТОРІНКА КАРТОК === */
-#card-page { display:none; padding:20px; min-height:100vh; }
-.cards-grid { 
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:30px; 
-    justify-content:center; max-width:1200px; margin:0 auto; 
-}
-.card-container { width:100%; height:200px; perspective:1000px; cursor:pointer; }
-.card { 
-    width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.8s; border-radius:12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-.card.is-flipped { transform:rotateY(180deg); }
-.card-face { 
-    position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; 
-    display:flex; flex-direction:column; justify-content:space-around; align-items:flex-start; /* ВИПРАВЛЕНО: Вирівнювання тексту */
-    border-radius:12px; border:3px solid; 
-    background-color: var(--bg-dark); /* ЧОРНИЙ ФОН */
-    color: white; /* БІЛИЙ ТЕКСТ */
-    text-align: left; /* ВИПРАВЛЕНО: Текст зліва */
-}
-.card-face h3 { margin-top: 0; } /* Додатковий фікс для заголовків */
-.card-face-front { 
-    border-color: var(--card-border-front); /* ЧЕРВОНА РАМКА */
-}
-.card-face-back { 
-    transform:rotateY(180deg); 
-    border-color: var(--card-border-back); /* ЗЕЛЕНА РАМКА */
-}
-/* Щоб текст не виходив за межі (забезпечується padding:20px і flex-direction:column) */
-
-/* КНОПКА переходу до гри */
-#to-game-btn { 
-    display:none; margin:20px auto; padding:12px 25px; font-size:1em; background-color:#000; color:#fff; border:none; border-radius:6px; 
-    cursor:pointer; transition:0.3s; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-#to-game-btn:hover{ background-color:#333;}
-
-/* === СЕКЦІЯ ГРИ === */
-#game-section { 
-    display:none; min-height:100vh; background-color:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */
-    color:#000; padding:20px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; flex-direction:column; 
-}
-.game-wrap { width:820px; max-width:100%; padding:20px; border-radius:12px; background:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */ box-shadow:0 8px 30px rgba(0,0,0,0.2); }
-.game-header h2 { font-size:1.5em; margin:0; color:#000; text-align:center; margin-bottom:12px; }
-.game-board { display:flex; gap:12px; flex-direction:column; align-items:center; }
-canvas { 
-    background:#ffffff; /* ВИПРАВЛЕНО: Біле ігрове поле */
-    border-radius:6px; width:100%; max-width:560px; height:auto; aspect-ratio:560/360; display:block; border:1px solid #333; 
-}
-.game-sidebar { width:220px; max-width:100%; padding:12px; border-radius:8px; background:var(--bg-light); /* ВИПРАВЛЕНО: Білий фон */ margin-top:12px; border: 1px solid #ccc; }
-.game-stat strong { display:block; font-size:20px; color:#000; }
-.game-controls button { background:transparent; border:1px solid #000; color: #000; padding:6px; border-radius:4px; font-size:0.9em; cursor:pointer; }
-.game-controls button:hover { background:#ddd; }
-.game-controls label { display:block; font-size: 0.9em; margin-top: 5px; color: #000; } 
-.game-controls input[type="range"] { width: 100%; margin-top: 2px; }
-
-/* Адаптивність */
-@media(max-width:768px){
-    #landing-page h1{font-size:2em;}
-    .cards-grid{grid-template-columns:1fr;}
-    .card-container{height:250px;}
-    .game-board{flex-direction:column;}
-    canvas{order:2;}
-    .game-sidebar{width:100%; order:1;}
-    .game-wrap{padding:10px;}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал оцінки ризиків SMT</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div id="landing-page">
-    <h1>Журнал оцінки ризиків для дільниці SMT</h1>
-    <button id="start-button">СТАРТ</button>
-</div>
-
-<div id="card-page">
-    <div class="cards-grid">
-        <div class="card-container" data-card-id="1">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №1: Випадковий спонтанний запуск рухомих частин обладнання під час налаштування чи технічного обслуговування обладнання</h3>
-                    <p>Оцінка: Високий</p>
-                    <p>Наслідок: Пошкодження кінцівок</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №1</h3>
-                    <p>Заходи: Регулярні автономні (щоденні, щотижневі, щомісячні, щоквартальні та 1 раз на пів-року) та технічні обслуговування спеціалізованою компанією (1 раз на 6 місяців)</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="2">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №2: Розпаковка, перевірка та завантаження плат в магазині (ручна праця)</h3>
-                    <p>Оцінка: Середній</p>
-                    <p>Наслідок: Поріз рук та пальців о гострі края поверхонь</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №2</h3>
-                    <p>Первинне та періодичне навчання по інструкції з охорони праці №14 "При виконанні вантажно-розвантажувальних робіт"</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="3">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №3: Підготовка до роботи (фіксація трафарету в рамці)</h3>
-                    <p>Оцінка: Високий</p>
-                    <p>Наслідок: Травмування очей та (або) кінцівок рук внаслідок розриву гнучкого  повітропроводу (подача надвисокого тиску в систему)</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №3</h3>
-                    <p>Контроль показників на манометрах, регулярне опосвідчення манометрів та редукторів тиску</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="4">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №4: Вологе прибирання підлоги</h3>
-                    <p>Оцінка: Низький</p>
-                    <p>Наслідок: Травмування різного характеру в наслідок падіння</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №4</h3>
-                    <p>Синхронізація часу вологого прибирання на дільниці з графіком робочих змін</p>
-                </div>
-            </div>
-        </div>
-        <div class="card-container" data-card-id="5">
-            <div class="card" onclick="flipCard(this.parentNode)">
-                <div class="card-face card-face-front">
-                    <h3>Ризик №5: Автономні (щоденні, щотижневі, щомісячні, щоквартальні та 1 раз на пів-року) при ввімкненому електропостачанні</h3>
-                    <p>Оцінка: Високий</p>
-                    <p>Наслідок: Ураження електричним струмом через несправну систему захисту обладнання від електричних небезпек</p>
-                </div>
-                <div class="card-face card-face-back">
-                    <h3>Контроль Ризику №5</h3>
-                    <p>Проведення регулярних навчань та інструктажів. Проведення Автономного та технічного обслуговування. Щорічна перевірка захисного заземлення, петлі "фаза-ноль" та занулення через електро-технічну лабораторію</p>
-                </div>
-            </div>
+    <div id="title-screen" class="screen title-page active-screen">
+        <div class="title-container">
+            <h1 class="title-text">Журнал оцінки ризиків для дільниці SMT</h1>
+            <a href="cards.html" class="start-button">Старт</a>
         </div>
     </div>
-    <button id="to-game-btn">Пограєм?</button>
-</div>
 
-<div id="game-section">
-    <div class="game-wrap">
-        <header class="game-header">
-            <h2>Погнали!</h2>
-        </header>
-        <div class="game-board">
-            <canvas id="game" width="560" height="360"></canvas>
-            <aside class="game-sidebar">
-                <div class="game-stat">Очки: <strong id="score">0</strong></div>
-                <div class="game-stat">Найкращий рахунок: <strong id="best">0</strong></div>
-                <div class="game-controls">
-                    <button id="start">Старт/Перезапуск</button>
-                    <button id="pause">Пауза</button>
-                    <label>Швидкість<input id="speed" type="range" min="2" max="8" value="4"></label>
-                    <label>Ширина ракетки<input id="paddleWidth" type="range" min="60" max="180" value="100"></label>
-                </div>
-            </aside>
+    <div id="pong-screen" class="screen pong-page">
+        
+        <div class="control-panel">
+            <div class="score">Бали: <span id="score">0</span></div>
+            <button id="pause-button" class="control-button">Пауза</button>
+            <button id="restart-button" class="control-button">Рестарт</button>
+            <div class="controls-settings">
+                <label for="speed-slider">Швидкість:</label>
+                <input type="range" id="speed-slider" min="1" max="10" value="5" step="1">
+                <label for="size-slider">Розмір ракетки:</label>
+                <input type="range" id="size-slider" min="50" max="150" value="100" step="10">
+            </div>
         </div>
+
+        <canvas id="game-canvas"></canvas>
+        <div id="start-overlay">Натисніть для запуску!</div>
     </div>
-</div>
 
-<script>
-// === КАРТКИ ЛОГІКА ===
-const totalCards = 5;
-const flippedCards = new Set();
+    <script>
+        // --- ЛОГІКА ГРИ ПІНГ-ПОНГ (JavaScript) ---
 
-// При завантаженні приховуються неактивні сторінки та ініціалізується гра (ФІКС)
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Приховуємо неактивні секції
-    document.getElementById('landing-page').style.display = 'flex';
-    document.getElementById('card-page').style.display = 'none';
-    document.getElementById('game-section').style.display = 'none';
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const pauseButton = document.getElementById('pause-button');
+        const restartButton = document.getElementById('restart-button');
+        const speedSlider = document.getElementById('speed-slider');
+        const sizeSlider = document.getElementById('size-slider');
+        const startOverlay = document.getElementById('start-overlay');
+        const pongScreen = document.getElementById('pong-screen');
 
-    // 2. Ініціалізуємо гру
-    initializeGame();
-});
+        let game;
+        let animationFrameId;
 
-// Перехід на сторінку карток
-document.getElementById('start-button').addEventListener('click', () => {
-    document.getElementById('landing-page').style.display = 'none';
-    document.getElementById('card-page').style.display = 'block';
-});
+        // Клас для управління грою
+        class PongGame {
+            constructor() {
+                this.score = 0;
+                this.isRunning = false;
+                this.isPaused = false;
+                
+                // Налаштування м'яча
+                this.ball = {
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    radius: 8,
+                    dx: 5, // Базова швидкість по X
+                    dy: 5, // Базова швидкість по Y
+                    baseSpeed: 5 // Початкова швидкість
+                };
 
-// Перегортання картки та перевірка на завершення
-function flipCard(container) {
-    const cardEl = container.querySelector('.card');
-    const id = container.dataset.cardId;
-    cardEl.classList.toggle('is-flipped');
-    if (!flippedCards.has(id)) flippedCards.add(id);
-    // Показати кнопку гри, коли перегорнуто всі картки
-    if (flippedCards.size === totalCards) document.getElementById('to-game-btn').style.display = 'block';
-}
+                // Налаштування ракетки
+                this.paddle = {
+                    height: 100, // Початкова висота (змінюється повзунком)
+                    width: 10,
+                    x: 20,
+                    y: (canvas.height - 100) / 2
+                };
+            }
 
-// Перехід до гри
-document.getElementById('to-game-btn').addEventListener('click', () => {
-    document.getElementById('card-page').style.display = 'none';
-    document.getElementById('game-section').style.display = 'flex';
-});
+            // Оновлення розмірів відповідно до екрана
+            resize() {
+                canvas.width = pongScreen.clientWidth;
+                canvas.height = pongScreen.clientHeight - document.querySelector('.control-panel').offsetHeight;
+                
+                // Переміщення м'яча та ракетки у відсотковому співвідношенні, якщо вони були на екрані
+                if (game) {
+                    this.ball.x = canvas.width / 2;
+                    this.ball.y = canvas.height / 2;
+                    this.paddle.y = (canvas.height - this.paddle.height) / 2;
+                }
+            }
 
-// === ЛОГІКА ГРИ "PING-PONG" ===
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const scoreEl = document.getElementById('score');
-const bestEl = document.getElementById('best');
-const startBtn = document.getElementById('start');
-const pauseBtn = document.getElementById('pause');
-const speedInput = document.getElementById('speed');
-const paddleWidthInput = document.getElementById('paddleWidth');
+            // Запуск гри
+            start() {
+                if (this.isRunning) return;
+                this.isRunning = true;
+                this.isPaused = false;
+                this.score = 0;
+                this.ball.x = canvas.width / 2;
+                this.ball.y = canvas.height / 2;
+                // Забезпечення різноманітної траєкторії
+                const angle = Math.random() * Math.PI / 2 + Math.PI / 4; // Кут між 45 і 135 градусами
+                const directionX = Math.random() < 0.5 ? 1 : -1;
+                this.ball.dx = directionX * this.ball.baseSpeed * Math.cos(angle);
+                this.ball.dy = this.ball.baseSpeed * Math.sin(angle);
+                
+                startOverlay.style.display = 'none';
+                this.updateScore();
+                this.loop();
+            }
 
-const W = 560, H = 360; // Розміри канвасу
-let state, paddle, ball, gameInterval, ballReleased = false;
+            // Цикл гри
+            loop() {
+                if (!this.isRunning || this.isPaused) return;
 
-function initializeGame() {
-    state = {
-        running: false, paused: false, score: 0, best: Number(localStorage.getItem('pp_best') || 0),
-        ballSpeedBase: +speedInput.value, paddleWidth: +paddleWidthInput.value
-    };
-    bestEl.textContent = state.best;
-    paddle = { w: state.paddleWidth, h: 12, x: (W - state.paddleWidth) / 2, y: H - 24, vx: 0 };
-    ball = { r: 8, x: W / 2, y: paddle.y - 8, vx: 0, vy: 0 };
-    if (!gameInterval) { 
-        gameInterval = setInterval(step, 1000 / 60); // Логіка гри (60 FPS)
-        renderLoop(); // Рендеринг (використовує requestAnimationFrame)
-    }
-    resetGame(); 
-}
+                this.update();
+                this.draw();
+                animationFrameId = requestAnimationFrame(() => this.loop());
+            }
 
-function resetBall() {
-    ball.x = paddle.x + paddle.w / 2;
-    ball.y = paddle.y - ball.r;
-    ball.vx = 0; ball.vy = 0;
-    ballReleased = false;
-}
+            // Оновлення логіки
+            update() {
+                // Рух м'яча
+                this.ball.x += this.ball.dx;
+                this.ball.y += this.ball.dy;
 
-function resetGame() {
-    state.score = 0; scoreEl.textContent = 0;
-    paddle.w = state.paddleWidth; 
-    paddle.x = (W - paddle.w) / 2;
-    resetBall();
-    state.running = true; 
-    state.paused = false;
-}
+                // Відбиття від верхньої та нижньої стінок (межі екрана)
+                if (this.ball.y + this.ball.radius > canvas.height || this.ball.y - this.ball.radius < 0) {
+                    this.ball.dy *= -1; // Зміна напрямку по Y
+                }
 
-// Допоміжна функція для малювання заокругленого прямокутника
-function drawRoundedRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill(); }
+                // Втрата м'яча (права стінка)
+                if (this.ball.x + this.ball.radius > canvas.width) {
+                    this.gameOver();
+                    return;
+                }
 
-// Функція малювання
-function draw() {
-    if (!state) return;
-    ctx.clearRect(0, 0, W, H);
-    // Сітка
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; /* ЧОРНА СІТКА */
-    for(let i=0; i<H; i+=20) ctx.fillRect(W/2 - 1, i + 6, 2, 12);
+                // Відбиття від ракетки (ліва стінка)
+                if (this.ball.x - this.ball.radius < this.paddle.x + this.paddle.width &&
+                    this.ball.y > this.paddle.y &&
+                    this.ball.y < this.paddle.y + this.paddle.height &&
+                    this.ball.dx < 0) {
+                    
+                    // Збільшення балів
+                    this.score++;
+                    this.updateScore();
+                    
+                    // Зміна напрямку по X
+                    this.ball.dx *= -1; 
+                    
+                    // Зміна траєкторії залежно від місця удару
+                    const relativeIntersectY = (this.paddle.y + (this.paddle.height / 2)) - this.ball.y;
+                    const normalizedRelativeIntersectionY = relativeIntersectY / (this.paddle.height / 2);
+                    const bounceAngle = normalizedRelativeIntersectionY * (Math.PI / 4); // Макс 45 градусів
+                    
+                    // Застосування швидкості
+                    const currentSpeed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
+                    
+                    this.ball.dx = currentSpeed * Math.cos(bounceAngle);
+                    this.ball.dy = currentSpeed * -Math.sin(bounceAngle);
+                }
 
-    // М'яч
-    ctx.fillStyle = "#000"; /* ЧОРНИЙ М'ЯЧ */
-    ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
-    
-    // Ракетка
-    ctx.fillStyle = "#000"; /* ЧОРНА РАКЕТКА */
-    drawRoundedRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
-}
+                // Пропуск ракетки (ліва стінка)
+                if (this.ball.x - this.ball.radius < 0) {
+                    this.gameOver();
+                }
+            }
 
-// Основний крок логіки гри (без змін)
-function step() {
-    if (!state.running || state.paused) return;
-    // Рух ракетки (обмежуємо по краях)
-    paddle.x += paddle.vx; 
-    if (paddle.x < 0) paddle.x = 0; 
-    if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
+            // Малювання
+            draw() {
+                // Очищення екрана
+                ctx.fillStyle = '#000000'; // Чорний фон
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (ballReleased) {
-        ball.x += ball.vx; ball.y += ball.vy;
-        
-        // Відбиття від стін (ліво/право/верх)
-        if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx *= -1; }
-        if (ball.x + ball.r > W) { ball.x = W - ball.r; ball.vx *= -1; }
-        if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -1; }
-        
-        // Зіткнення з ракеткою (логіка відбиття під кутом)
-        if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h && ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
-            // Розрахунок точки удару відносно центру ракетки (-1 до 1)
-            const relative = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2); 
-            const speed = Math.hypot(ball.vx, ball.vy);
-            const maxBounce = Math.PI / 3; // Максимальний кут відбиття (60 градусів)
-            const angle = relative * maxBounce + Math.PI / 2;
+                // Малювання м'яча
+                ctx.fillStyle = '#FFFFFF'; // Білий м'яч
+                ctx.beginPath();
+                ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Малювання ракетки
+                ctx.fillStyle = '#FFFFFF'; // Біла ракетка
+                ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
+            }
+
+            // Оновлення балів на екрані
+            updateScore() {
+                scoreElement.textContent = this.score;
+            }
+
+            // Пауза гри
+            pause() {
+                this.isPaused = !this.isPaused;
+                pauseButton.textContent = this.isPaused ? 'Продовжити' : 'Пауза';
+                if (!this.isPaused) {
+                    this.loop();
+                }
+            }
             
-            ball.vx = speed * Math.cos(angle);
-            ball.vy = -Math.abs(speed * Math.sin(angle)); // Завжди летить вгору
-
-            state.score++; scoreEl.textContent = state.score;
-            if (state.score > state.best) { state.best = state.score; bestEl.textContent = state.best; localStorage.setItem('pp_best', state.best); }
+            // Кінець гри
+            gameOver() {
+                this.isRunning = false;
+                cancelAnimationFrame(animationFrameId);
+                startOverlay.textContent = `Гру закінчено! Ваш рахунок: ${this.score}. Натисніть для рестарту.`;
+                startOverlay.style.display = 'flex';
+            }
+            
+            // Рестарт гри
+            restart() {
+                this.gameOver(); // Зупиняємо поточний цикл
+                this.start(); // Запускаємо новий
+            }
         }
 
-        // Промах (падіння за нижню межу) -> Game Over
-        if (ball.y - ball.r > H) { 
-            state.running = false;
-            resetGame(); 
-        } 
-    } else {
-        // М'яч слідує за ракеткою до випуску
-        ball.x = paddle.x + paddle.w / 2; ball.y = paddle.y - ball.r;
-    }
-}
+        // --- ОБРОБНИКИ ПОДІЙ ---
 
-// Функція випуску м'яча (без змін)
-function releaseBall() { 
-    ballReleased = true; 
-    const speed = state.ballSpeedBase;
-    // Випадковий кут вгору
-    const angle = Math.random() * Math.PI / 2 - Math.PI / 4; 
-    ball.vx = speed * Math.cos(angle); 
-    ball.vy = -Math.abs(speed * Math.sin(angle)); 
-}
+        // Ініціалізація гри при завантаженні сторінки з грою
+        if (pongScreen.classList.contains('active-screen') || window.location.hash === '#pong') {
+            game = new PongGame();
+            game.resize(); // Встановлення початкових розмірів
+        }
 
-// Керування з клавіатури (без змін)
-let left = false, right = false;
-window.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft') left = true;
-    if (e.key === 'ArrowRight') right = true; 
-    if (e.key === ' ' && !ballReleased && state.running) { releaseBall(); }
-});
-window.addEventListener('keyup', e => { if (e.key === 'ArrowLeft') left = false; if (e.key === 'ArrowRight') right = false; });
+        // Обробник для переміщення ракетки (подія touchmove на мобільних)
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Запобігання прокручуванню сторінки
+            if (game && game.isRunning && !game.isPaused) {
+                // Визначаємо позицію дотику
+                let touchY = e.touches[0].clientY - pongScreen.offsetTop - document.querySelector('.control-panel').offsetHeight;
+                
+                // Переміщення ракетки
+                game.paddle.y = touchY - game.paddle.height / 2;
 
-function updatePaddleFromKeys() { 
-    const speed = 6; 
-    if (left) paddle.vx = -speed; 
-    else if (right) paddle.vx = speed; 
-    else paddle.vx = 0; 
-    requestAnimationFrame(updatePaddleFromKeys); 
-}
-updatePaddleFromKeys(); // Запуск циклу оновлення ракетки
+                // Запобігання виходу за межі
+                if (game.paddle.y < 0) game.paddle.y = 0;
+                if (game.paddle.y + game.paddle.height > canvas.height) game.paddle.y = canvas.height - game.paddle.height;
+            }
+        });
+        
+        // Запуск гри при натисканні на поле
+        startOverlay.addEventListener('click', () => {
+             if(game) game.start();
+        });
+        
+        // Кнопка Пауза
+        pauseButton.addEventListener('click', () => {
+            if(game) game.pause();
+        });
 
-// Керування мишею/дотиком (без змін)
-canvas.addEventListener('mousemove', handleInput);
-canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0]); });
-canvas.addEventListener('touchstart', e => { if (!ballReleased && state.running) releaseBall(); }); 
-canvas.addEventListener('mousedown', () => { if (!ballReleased && state.running) releaseBall(); }); 
+        // Кнопка Рестарт
+        restartButton.addEventListener('click', () => {
+            if(game) game.restart();
+        });
 
-function handleInput(e) {
-    if (!state.running || state.paused) return; 
-    const rect = canvas.getBoundingClientRect(); 
-    const scaleX = W / rect.width; 
-    // Координата курсора/дотику відносно канвасу
-    const mx = (e.clientX || e.pageX) - rect.left; 
-    
-    // Центрування ракетки під курсором/дотиком
-    paddle.x = (mx * scaleX) - paddle.w / 2; 
-    
-    // Обмеження ракетки
-    if (paddle.x < 0) paddle.x = 0; 
-    if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
-}
+        // Повзунок швидкості
+        speedSlider.addEventListener('input', (e) => {
+            const speed = parseInt(e.target.value);
+            const multiplier = speed / 5; // Зміна швидкості відносно початкової 5
+            
+            if (game) {
+                 // Оновлюємо базову швидкість
+                game.ball.baseSpeed = 5 * multiplier;
+                
+                // Зберігаємо поточний напрямок, але змінюємо швидкість
+                const currentDirectionX = Math.sign(game.ball.dx);
+                const currentDirectionY = Math.sign(game.ball.dy);
+                
+                // Застосовуємо нову швидкість
+                game.ball.dx = currentDirectionX * game.ball.baseSpeed * (Math.abs(game.ball.dx) / Math.sqrt(game.ball.dx * game.ball.dx + game.ball.dy * game.ball.dy));
+                game.ball.dy = currentDirectionY * game.ball.baseSpeed * (Math.abs(game.ball.dy) / Math.sqrt(game.ball.dx * game.ball.dx + game.ball.dy * game.ball.dy));
+            }
+        });
 
-// Обробники кнопок (без змін)
-startBtn.addEventListener('click', () => { 
-    state.ballSpeedBase = +speedInput.value; 
-    state.paddleWidth = +paddleWidthInput.value; 
-    resetGame(); 
-});
-pauseBtn.addEventListener('click', () => { if (state.running) state.paused = !state.paused; });
+        // Повзунок розміру ракетки
+        sizeSlider.addEventListener('input', (e) => {
+            if (game) {
+                game.paddle.height = parseInt(e.target.value);
+                // Коригуємо положення, щоб ракетка не виходила за межі при зміні розміру
+                if (game.paddle.y + game.paddle.height > canvas.height) {
+                    game.paddle.y = canvas.height - game.paddle.height;
+                }
+            }
+        });
 
-// Обробники повзунків (без змін)
-speedInput.addEventListener('input', () => { state.ballSpeedBase = +speedInput.value; });
-paddleWidthInput.addEventListener('input', () => { state.paddleWidth = +paddleWidthInput.value; paddle.w = state.paddleWidth; paddle.x = Math.min(paddle.x, W - paddle.w); });
-
-// Цикл рендерингу (малювання) (без змін)
-function renderLoop() { draw(); requestAnimationFrame(renderLoop); }
-</script>
+        // Адаптивність при зміні розміру вікна
+        window.addEventListener('resize', () => {
+            if(game) game.resize();
+        });
+        
+        // Перехід на екран гри з "cards.html"
+        window.addEventListener('hashchange', () => {
+            if (window.location.hash === '#pong') {
+                document.getElementById('title-screen').classList.remove('active-screen');
+                pongScreen.classList.add('active-screen');
+                if (!game) {
+                    game = new PongGame();
+                    game.resize();
+                }
+                // Налаштовуємо початковий стан гри
+                startOverlay.textContent = 'Натисніть для запуску!';
+                startOverlay.style.display = 'flex';
+                if(game.isRunning) game.gameOver();
+                game.isPaused = false;
+                pauseButton.textContent = 'Пауза';
+            }
+        });
+    </script>
 
 </body>
 </html>
