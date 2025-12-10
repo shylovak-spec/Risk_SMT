@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гра Пінг-Понг</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        /* Стилі для ігрового полотна (Canvas) */
+        canvas {
+            border: 3px solid #fff;
+            background-color: #000;
+            cursor: none; /* Приховуємо курсор під час гри */
+        }
+
+        /* Стилі для елементів інтерфейсу */
+        #game-info {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #ccc;
+        }
+
+        #start-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: lime;
+            text-shadow: 0 0 10px #00ff00;
+            cursor: pointer;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+        
+        #back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="back-btn">⬅️ Назад до інструкцій</a>
+    
+    <div id="game-info">
+        <p>Керуйте правою платформою (ракеткою) за допомогою миші.</p>
+        <p>Для початку гри натисніть на екран.</p>
+    </div>
+
+    <canvas id="pong-canvas" width="600" height="400"></canvas>
+    
+    <div id="start-message">Натисніть, щоб почати!</div>
+
+    <script>
+        const canvas = document.getElementById('pong-canvas');
+        const ctx = canvas.getContext('2d');
+        const startMessage = document.getElementById('start-message');
+
+        let gameRunning = false;
+        let score = 0;
+        let animationFrameId;
+
+        // Розміри та позиції
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const paddleWidth = 10;
+        const paddleHeight = 80;
+        const ballRadius = 8;
+
+        // Об'єкти гри
+        let playerPaddle = {
+            x: canvasWidth - paddleWidth - 10,
+            y: canvasHeight / 2 - paddleHeight / 2,
+            width: paddleWidth,
+            height: paddleHeight,
+            dy: 0 // для керування мишею
+        };
+
+        let aiPaddle = {
+            x: 10,
+            y: canvasHeight / 2 - paddleHeight / 2,
+            width: paddleWidth,
+            height: paddleHeight,
+            speed: 3
+        };
+
+        let ball = {
+            x: canvasWidth / 2,
+            y: canvasHeight / 2,
+            radius: ballRadius,
+            dx: 5, // Швидкість по X
+            dy: 5  // Швидкість по Y
+        };
+
+        // --- Функції малювання ---
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w, h);
+        }
+
+        function drawBall(x, y, r, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawScore() {
+            ctx.fillStyle = "#fff";
+            ctx.font = "30px Roboto";
+            ctx.fillText(score, canvasWidth / 2 + 50, 40);
+            ctx.fillText("AI: " + 0, canvasWidth / 2 - 80, 40);
+        }
+
+        // --- Логіка AI ---
+        function updateAIPaddle() {
+            // AI намагається слідувати за м'ячем
+            let targetY = ball.y - aiPaddle.height / 2;
+            
+            if (aiPaddle.y < targetY) {
+                aiPaddle.y += aiPaddle.speed;
+            } else if (aiPaddle.y > targetY) {
+                aiPaddle.y -= aiPaddle.speed;
+            }
+            
+            // Запобігання виходу за межі
+            if (aiPaddle.y < 0) aiPaddle.y = 0;
+            if (aiPaddle.y + aiPaddle.height > canvasHeight) aiPaddle.y = canvasHeight - aiPaddle.height;
+        }
+
+        // --- Функція скидання м'яча ---
+        function resetBall() {
+            ball.x = canvasWidth / 2;
+            ball.y = canvasHeight / 2;
+            // Змінюємо напрямок м'яча на протилежний для наступного старту
+            ball.dx = -ball.dx; 
+        }
+
+        // --- Оновлення гри (основний цикл) ---
+        function update() {
+            // 1. Рух м'яча
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // 2. Відскок від верхньої та нижньої стінок
+            if (ball.y + ball.radius > canvasHeight || ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy;
+            }
+
+            // 3. Відскок від ракеток та пропуск
+            let playerHit = ball.x + ball.radius > playerPaddle.x && ball.y > playerPaddle.y && ball.y < playerPaddle.y + playerPaddle.height;
+            let aiHit = ball.x - ball.radius < aiPaddle.x + aiPaddle.width && ball.y > aiPaddle.y && ball.y < aiPaddle.y + aiPaddle.height;
+
+            if (playerHit) {
+                ball.dx = -ball.dx;
+                score++; // Збільшуємо рахунок гравця
+            } else if (aiHit) {
+                ball.dx = -ball.dx;
+            }
+
+            // 4. Пропуск м'яча
+            if (ball.x + ball.radius > canvasWidth) {
+                // Гравець пропустив м'яч (або м'яч торкнувся правої стінки)
+                // Тут ми просто скидаємо м'яч, не штрафуючи гравця, щоб він міг продовжувати тренуватися
+                resetBall(); 
+            } else if (ball.x - ball.radius < 0) {
+                // AI пропустив м'яч
+                resetBall();
+            }
+
+            // 5. Оновлення AI
+            updateAIPaddle();
+        }
+
+        // --- Функція рендерингу ---
+        function render() {
+            // Очищення полотна
+            drawRect(0, 0, canvasWidth, canvasHeight, "#000");
+
+            // Лінія по центру (опціонально)
+            drawRect(canvasWidth / 2 - 2, 0, 4, canvasHeight, "#444");
+
+            // Малювання об'єктів
+            drawRect(playerPaddle.x, playerPaddle.y, playerPaddle.width, playerPaddle.height, "#fff"); // Гравець
+            drawRect(aiPaddle.x, aiPaddle.y, aiPaddle.width, aiPaddle.height, "#fff");     // AI
+            drawBall(ball.x, ball.y, ball.radius, "#fff");
+
+            // Малювання рахунку (AI рахунок завжди 0 для спрощення)
+            drawScore();
+        }
+
+        // --- Головний ігровий цикл ---
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            update();
+            render();
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- Обробка подій (Керування мишею) ---
+        canvas.addEventListener('mousemove', function(event) {
+            if (!gameRunning) return;
+            
+            // Отримуємо позицію миші відносно полотна
+            let rect = canvas.getBoundingClientRect();
+            let root = document.documentElement;
+            let mouseY = event.clientY - rect.top - root.scrollTop;
+
+            // Встановлюємо позицію ракетки по центру курсору
+            playerPaddle.y = mouseY - playerPaddle.height / 2;
+
+            // Запобігання виходу за межі
+            if (playerPaddle.y < 0) playerPaddle.y = 0;
+            if (playerPaddle.y + playerPaddle.height > canvasHeight) playerPaddle.y = canvasHeight - playerPaddle.height;
+        });
+
+        // --- Старт гри ---
+        function startGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            score = 0;
+            aiPaddle.y = canvasHeight / 2 - paddleHeight / 2; // Скинути позицію AI
+            resetBall();
+            startMessage.style.display = 'none';
+            gameLoop();
+        }
+
+        // Запуск гри по кліку на полотно або повідомлення
+        canvas.addEventListener('click', startGame);
+        startMessage.addEventListener('click', startGame);
+
+        // Початковий рендеринг, щоб показати поле до старту
+        render();
+
+    </script>
+</body>
+</html>
