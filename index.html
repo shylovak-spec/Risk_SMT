@@ -8,23 +8,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+/* --- ГЛОБАЛЬНІ СТИЛІ --- */
 * { margin:0; padding:0; box-sizing:border-box; font-family:Roboto, sans-serif; }
-body { background:#000; color:#fff; }
+/* ОСНОВНИЙ ФОН: Білий, ОСНОВНИЙ ТЕКСТ: Чорний */
+body { background:#fff; color:#000; } 
 section { width:100%; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; }
 button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-radius:10px; }
 
-/* ТИТУЛЬНА СТОРІНКА */
-#title-screen h1 { font-size:32px; text-align:center; margin-bottom:30px; }
-#start-btn { background:#fff; color:#000; }
+/* --- ТИТУЛЬНА СТОРІНКА --- */
+#title-screen h1 { font-size:32px; text-align:center; margin-bottom:30px; } 
+#start-btn { background:#000; color:#fff; } /* Чорна кнопка на білому фоні */
 
-/* КАРТКИ */
-#cards-screen { background:#fff; color:#000; display:none; }
+/* --- КАРТКИ --- */
+/* ЕКРАН КАРТОК: Фон білий, текст (заголовок) чорний */
+#cards-screen { background:#fff; color:#000; display:none; } 
 .cards-grid { width:100%; max-width:500px; display:grid; grid-template-columns:1fr; gap:20px; }
 .card { 
     width:100%; 
     height:180px; 
     perspective:1000px; 
-    cursor:pointer; /* Додано: вказує на інтерактивність */
+    cursor:pointer; 
 }
 .card-inner { 
     width:100%; 
@@ -32,7 +35,7 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     position:relative; 
     transition:transform 0.6s; 
     transform-style:preserve-3d; 
-    /* Додано: Чорна грань картки, видима на переходах */
+    /* Грань: Чорна для контрасту з білим екраном */
     border: 3px solid #000; 
     border-radius: 17px; 
 }
@@ -47,9 +50,10 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     padding:15px;
     display:flex;
     flex-direction:column;
-    justify-content:center; /* Змінено: центрує текст вертикально */
-    align-items:center; /* Змінено: центрує текст горизонтально */
-    text-align:center; /* Змінено: центрує текст */
+    justify-content:center; /* Вертикальне центрування */
+    align-items:center; /* Горизонтальне центрування вмісту */
+    text-align:center; /* Центрування самого тексту */
+    /* ОБЛИЧЧЯ КАРТКИ: Чорний фон, Білий текст */
     background:#000;
     color:#fff;
     border:3px solid;
@@ -57,8 +61,8 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     line-height:1.3;
     hyphens:auto;
 }
-.card-front { border-color:red; } /* Червона рамка для Ризику */
-.card-back { border-color:lime; transform:rotateY(180deg); } /* Зелена рамка для Контролю */
+.card-front { border-color:red; } /* Червона рамка спереду */
+.card-back { border-color:lime; transform:rotateY(180deg); } /* Зелена рамка ззаду */
 
 #play-btn { display:none; margin-top:30px; background:#000; color:#fff; border:2px solid #000; }
 </style>
@@ -116,11 +120,13 @@ cardData.forEach(c => {
         card.classList.toggle('flipped');
         const isFlippedNow = card.classList.contains('flipped');
 
+        // ЛОГІКА ПІДРАХУНКУ: Збільшуємо лічильник, лише якщо картка була перегорнута вперше
         if (!wasFlipped && isFlippedNow && card.getAttribute('data-flipped-once') === 'false') {
             card.setAttribute('data-flipped-once', 'true');
             flippedCount++;
         }
 
+        // УМОВА: Якщо всі картки перегорнуті, показати кнопку гри
         if (flippedCount === cardData.length) {
             playBtn.style.display = 'block';
         }
