@@ -1,375 +1,239 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>Гра Теніс (Pong) - Двоє гравців</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* --- СТИЛІ --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
-        
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #1a1a1a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пінг-Понг</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Roboto, sans-serif; }
 
-        .game-container {
-            text-align: center;
-            background-color: #000;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-        }
+    body {
+        background:#000;
+        height:100vh;
+        overflow:hidden;
+        position:relative;
+        touch-action:none;
+    }
 
-        #gameCanvas {
-            background-color: #000; /* Чорний фон для гри */
-            border: 2px solid white;
-            display: block;
-            margin-bottom: 15px;
-        }
+    #ui {
+        width:100%;
+        height:60px;
+        background:#fff;
+        color:#000;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:0 20px;
+        font-size:20px;
+        font-weight:500;
+    }
 
-        .score-display {
-            color: white;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 10px;
-        }
+    #pauseBtn {
+        background:#000;
+        color:#fff;
+        border:2px solid #000;
+        padding:8px 16px;
+        border-radius:8px;
+        font-size:16px;
+    }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .controls button {
-            padding: 10px 15px;
-            border: 1px solid white;
-            background-color: #333;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .controls button:hover {
-            background-color: #555;
-        }
-        
-        .instructions {
-            color: #ccc;
-            font-size: 0.9em;
-            margin-top: 15px;
-        }
-    </style>
+    canvas {
+        display:block;
+        background:#000;
+    }
+</style>
 </head>
 <body>
 
-    <div class="game-container">
-        <div class="score-display">
-            <span id="player1Score">Гравець 1: 0</span>
-            <span id="player2Score">Гравець 2: 0</span>
-        </div>
+<div id="ui">
+    <div>Рахунок: <span id="score">0</span></div>
+    <button id="pauseBtn">Пауза</button>
+</div>
 
-        <canvas id="gameCanvas" width="600" height="400"></canvas>
+<canvas id="gameCanvas"></canvas>
 
-        <div class="controls">
-            <button id="startButton">Старт / Продовжити</button>
-            <button id="pauseButton">Пауза</button>
-            <button id="stopButton">Скинути гру</button>
-        </div>
-        
-        <p class="instructions">
-            **Керування:**<br>
-            Гравець 1 (ліворуч): **W** (вгору), **S** (вниз)<br>
-            Гравець 2 (праворуч): **Стрілка Вгору**, **Стрілка Вниз**
-        </p>
-    </div>
+<script>
+/*************** НАЛАШТУВАННЯ ***************/
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-    <script>
-        // --- ЛОГІКА ГРИ (JAVASCRIPT) ---
+let W = window.innerWidth;
+let H = window.innerHeight - 60;
 
-        // Отримання елементів DOM
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const score1Display = document.getElementById('player1Score');
-        const score2Display = document.getElementById('player2Score');
-        const startButton = document.getElementById('startButton');
-        const pauseButton = document.getElementById('pauseButton');
-        const stopButton = document.getElementById('stopButton');
+canvas.width = W;
+canvas.height = H;
 
-        // Глобальні змінні гри
-        let animationFrameId;
-        let isPaused = true;
-        const maxScore = 5; // Рахунок, до якого грають
+let ball = { x: W/2, y: H/2, r: 12, vx: 4, vy: -5 };
+let paddle = { w: 140, h: 14, x: W/2 - 70, y: H - 30 };
 
-        // Об'єкти та константи гри
-        const game = {
-            p1Score: 0,
-            p2Score: 0
-        };
+let isRunning = false;
+let paused = false;
+let score = 0;
 
-        const ball = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            radius: 5,
-            initialSpeed: 4, // Початкова швидкість
-            speed: 4,
-            dx: 4, // Швидкість по X
-            dy: 4  // Швидкість по Y
-        };
+const MAX_SPEED = 16;  // ліміт швидкості, щоб не було неможливо грати
+const SPEED_GROWTH = 0.25; // збільшення швидкості після удару
 
-        const paddle = {
-            width: 10,
-            height: 60,
-            speed: 6 // Швидкість руху ракеток
-        };
+let explosionParticles = [];
+let exploding = false;
 
-        const paddle1 = { // Ліва ракетка (Гравець 1)
-            x: 0,
-            y: canvas.height / 2 - paddle.height / 2,
-            dy: 0 // Швидкість руху
-        };
+/*************** УПРАВЛІННЯ ***************/
+document.addEventListener("mousemove", e => {
+    paddle.x = e.clientX - paddle.w/2;
+});
 
-        const paddle2 = { // Права ракетка (Гравець 2)
-            x: canvas.width - paddle.width,
-            y: canvas.height / 2 - paddle.height / 2,
-            dy: 0
-        };
+canvas.addEventListener("touchmove", e => {
+    let t = e.touches[0];
+    paddle.x = t.clientX - paddle.w/2;
+});
 
-        // Стан натискання клавіш
-        const keys = {
-            w: false, s: false, // W, S для Гравця 1
-            up: false, down: false // Стрілки для Гравця 2
-        };
+canvas.addEventListener("click", startGame);
+canvas.addEventListener("touchstart", startGame);
 
-        // --- ФУНКЦІЇ МАЛЮВАННЯ (DRAW) ---
+document.getElementById("pauseBtn").onclick = () => {
+    paused = !paused;
+};
 
-        function drawRect(x, y, w, h, color = 'white') {
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, w, h);
-        }
+/*************** ЛОГІКА ***************/
+function startGame() {
+    if (!isRunning) {
+        isRunning = true;
+        paused = false;
+    }
+}
 
-        function drawBall(color = 'white') {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.closePath();
-        }
+function resetBall() {
+    ball.x = W/2;
+    ball.y = H/2;
+    ball.vx = 4;
+    ball.vy = -5;
+}
 
-        function drawNet() {
-            // Сітка по центру (пунктирна біла лінія)
-            ctx.strokeStyle = 'white';
-            ctx.setLineDash([10, 10]);
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, 0);
-            ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.stroke();
-            ctx.setLineDash([]); // Скидаємо пунктир
-        }
+function increaseDifficulty() {
+    // Збільшуємо швидкість мʼячика
+    if (Math.abs(ball.vx) < MAX_SPEED) ball.vx *= (1 + SPEED_GROWTH);
+    if (Math.abs(ball.vy) < MAX_SPEED) ball.vy *= (1 + SPEED_GROWTH);
 
-        function draw() {
-            // 1. Очищення полотна (фон завжди чорний)
-            drawRect(0, 0, canvas.width, canvas.height, 'black');
+    // Трохи додаємо випадковий кут
+    ball.vx += (Math.random() - 0.5) * 1.5;
+}
 
-            // 2. Малювання сітки, ракеток та м'яча
-            drawNet();
-            drawRect(paddle1.x, paddle1.y, paddle.width, paddle.height);
-            drawRect(paddle2.x, paddle2.y, paddle.width, paddle.height);
-            drawBall();
-            
-            // Відображення тексту паузи
-            if (isPaused && game.p1Score < maxScore && game.p2Score < maxScore) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.font = '30px Roboto';
-                ctx.textAlign = 'center';
-                ctx.fillText('ПАУЗА', canvas.width / 2, canvas.height / 2);
-            }
-        }
+function lose() {
+    // Запускаємо вибух
+    exploding = true;
+    createExplosion(ball.x, ball.y);
 
-        // --- ФУНКЦІЇ ОНОВЛЕННЯ (UPDATE) ---
+    // Після анімації → повернення
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 900);
+}
 
-        function resetBall() {
-            ball.x = canvas.width / 2;
-            ball.y = canvas.height / 2;
-            ball.speed = ball.initialSpeed;
-            // Напрямок скидається випадково
-            ball.dx = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
-            ball.dy = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
-            
-            // Якщо гра не йде, ставимо на паузу, щоб гравець натиснув Старт
-            if (animationFrameId) isPaused = true;
-        }
+/*************** ВИБУХ ***************/
+function createExplosion(x, y) {
+    explosionParticles = [];
+    let amount = 25;
 
-        function updateScore() {
-            score1Display.textContent = `Гравець 1: ${game.p1Score}`;
-            score2Display.textContent = `Гравець 2: ${game.p2Score}`;
-
-            // Перевірка перемоги
-            if (game.p1Score >= maxScore) {
-                alert(`Гравець 1 переміг з рахунком ${maxScore} до ${game.p2Score}!`);
-                stopGame();
-            } else if (game.p2Score >= maxScore) {
-                alert(`Гравець 2 переміг з рахунком ${maxScore} до ${game.p1Score}!`);
-                stopGame();
-            }
-        }
-
-        function update() {
-            if (isPaused) return;
-
-            // 1. Рух м'яча
-            ball.x += ball.dx;
-            ball.y += ball.dy;
-
-            // Зіткнення з верхньою/нижньою стінкою
-            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
-                ball.dy = -ball.dy;
-            }
-
-            // 2. Рух ракеток (залежно від натиснутих клавіш)
-            // Гравець 1 (W/S)
-            if (keys.w && paddle1.y > 0) {
-                paddle1.y -= paddle.speed;
-            }
-            if (keys.s && paddle1.y < canvas.height - paddle.height) {
-                paddle1.y += paddle.speed;
-            }
-
-            // Гравець 2 (Стрілки)
-            if (keys.up && paddle2.y > 0) {
-                paddle2.y -= paddle.speed;
-            }
-            if (keys.down && paddle2.y < canvas.height - paddle.height) {
-                paddle2.y += paddle.speed;
-            }
-
-            // 3. Логіка відбиття та рахунку
-
-            // Перевірка зіткнення з ракеткою 1 (ліва)
-            if (
-                ball.x - ball.radius < paddle1.x + paddle.width && 
-                ball.x - ball.radius > paddle1.x && // М'яч має рухатись ліворуч, щоб зіткнутись
-                ball.y + ball.radius > paddle1.y && 
-                ball.y - ball.radius < paddle1.y + paddle.height &&
-                ball.dx < 0 // Перевіряємо, чи м'яч рухався у бік ракетки
-            ) {
-                ball.dx = -ball.dx; // Зміна напрямку
-                ball.speed += 0.2; // Трохи збільшуємо швидкість
-                ball.dx *= 1.05; 
-            }
-            
-            // Перевірка зіткнення з ракеткою 2 (права)
-            if (
-                ball.x + ball.radius > paddle2.x && 
-                ball.x + ball.radius < paddle2.x + paddle.width && 
-                ball.y + ball.radius > paddle2.y && 
-                ball.y - ball.radius < paddle2.y + paddle.height &&
-                ball.dx > 0 // Перевіряємо, чи м'яч рухався у бік ракетки
-            ) {
-                ball.dx = -ball.dx; // Зміна напрямку
-                ball.speed += 0.2; // Трохи збільшуємо швидкість
-                ball.dx *= 1.05;
-            }
-
-            // 4. Логіка голу (пропуск м'яча)
-            if (ball.x < 0) {
-                // Гол Гравця 2
-                game.p2Score++;
-                updateScore();
-                resetBall();
-            } else if (ball.x > canvas.width) {
-                // Гол Гравця 1
-                game.p1Score++;
-                updateScore();
-                resetBall();
-            }
-        }
-
-        // --- ОСНОВНИЙ ЦИКЛ ГРИ (GAME LOOP) ---
-
-        function loop() {
-            update();
-            draw();
-            animationFrameId = requestAnimationFrame(loop);
-        }
-
-        // --- КЕРУВАННЯ ГРОЮ ---
-
-        function startGame() {
-            if (isPaused) {
-                isPaused = false;
-                // Запускаємо анімацію, якщо вона ще не запущена
-                if (!animationFrameId) {
-                    loop();
-                }
-            }
-        }
-
-        function pauseGame() {
-            isPaused = true;
-        }
-
-        function stopGame() {
-            isPaused = true;
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-            
-            // Скидання стану гри
-            game.p1Score = 0;
-            game.p2Score = 0;
-            updateScore();
-            resetBall();
-            draw(); // Малюємо початковий стан
-        }
-
-        // --- ОБРОБНИКИ ПОДІЙ ---
-
-        // Керування кнопками
-        startButton.addEventListener('click', startGame);
-        pauseButton.addEventListener('click', pauseGame);
-        stopButton.addEventListener('click', stopGame);
-
-        // Керування клавішами (для плавного руху)
-        document.addEventListener('keydown', (e) => {
-            switch (e.key.toLowerCase()) {
-                case 'w': keys.w = true; break;
-                case 's': keys.s = true; break;
-                case 'arrowup': keys.up = true; break;
-                case 'arrowdown': keys.down = true; break;
-                case ' ': // Пробіл для паузи/продовження
-                    if (e.target === document.body) { // Запобігаємо прокручуванню сторінки
-                        e.preventDefault();
-                        if (isPaused) startGame();
-                        else pauseGame();
-                    }
-                    break;
-            }
+    for (let i = 0; i < amount; i++) {
+        explosionParticles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            life: 1
         });
+    }
+}
 
-        document.addEventListener('keyup', (e) => {
-            switch (e.key.toLowerCase()) {
-                case 'w': keys.w = false; break;
-                case 's': keys.s = false; break;
-                case 'arrowup': keys.up = false; break;
-                case 'arrowdown': keys.down = false; break;
-            }
-        });
+function updateExplosion() {
+    explosionParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.03;
+    });
 
-        // Ініціалізація
-        updateScore();
-        resetBall();
-        draw();
-    </script>
+    explosionParticles = explosionParticles.filter(p => p.life > 0);
+}
+
+function drawExplosion() {
+    explosionParticles.forEach(p => {
+        ctx.fillStyle = `rgba(255,255,255,${p.life})`;
+        ctx.fillRect(p.x, p.y, 6, 6);
+    });
+}
+
+/*************** ГРА ***************/
+function update() {
+    if (!isRunning || paused || exploding) return;
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // СТІНИ
+    if (ball.x < ball.r || ball.x > W - ball.r) ball.vx *= -1;
+    if (ball.y < ball.r) ball.vy *= -1;
+
+    // РАКЕТКА
+    if (
+        ball.y + ball.r >= paddle.y &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.w
+    ) {
+        ball.vy = -Math.abs(ball.vy);
+
+        // точка контакту → вплив на кут
+        let delta = ball.x - (paddle.x + paddle.w / 2);
+        ball.vx = delta * 0.17;
+
+        score++;
+        document.getElementById("score").innerText = score;
+
+        increaseDifficulty();
+    }
+
+    // ПРОГРАШ
+    if (ball.y > H + 30) {
+        lose();
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    if (!exploding) {
+        // Мʼяч
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Ракетка
+    ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+    // Вибух
+    if (exploding) {
+        updateExplosion();
+        drawExplosion();
+    }
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+loop();
+
+/*************** АДАПТИВ ***************/
+window.addEventListener("resize", () => {
+    W = window.innerWidth;
+    H = window.innerHeight - 60;
+    canvas.width = W;
+    canvas.height = H;
+
+    paddle.y = H - 30;
+});
+</script>
+
 </body>
 </html>
