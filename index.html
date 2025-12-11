@@ -60,7 +60,13 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     /* Обертаємо зворотну сторону, щоб її текст був прямо, коли вся картка перевернута */
     transform: rotateY(180deg); 
 }
-
+#play-btn { 
+    display: none; /* ЦЕ КРИТИЧНО: Приховуємо кнопку на старті */
+    margin-top:30px; 
+    background:#000; 
+    color:#fff; 
+    border:2px solid #000; 
+}
 </style>
 </head>
 <body>
