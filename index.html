@@ -10,7 +10,6 @@
 <style>
 /* --- ЗАГАЛЬНІ СТИЛІ --- */
 * { margin:0; padding:0; box-sizing:border-box; font-family:Roboto, sans-serif; }
-/* Титульний екран: Фон чорний, текст білий */
 body { background:#000; color:#fff; }
 section { width:100%; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; }
 button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-radius:10px; }
@@ -20,14 +19,13 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
 #start-btn { background:#fff; color:#000; }
 
 /* --- КАРТКИ --- */
-/* Екран карток: Фон білий, текст чорний */
 #cards-screen { background:#fff; color:#000; display:none; }
 .cards-grid { width:100%; max-width:500px; display:grid; grid-template-columns:1fr; gap:20px; }
-.card { width:100%; height:180px; perspective:1000px; cursor:pointer; }
-.card-inner { width:100%; height:100%; position:relative; transition:transform 0.6s; transform-style:preserve-3d; border-radius: 17px; }
+.card { width:100%; height:180px; perspective:1000px; }
+.card-inner { width:100%; height:100%; position:relative; transition:transform 0.6s; transform-style:preserve-3d; }
 .card.flipped .card-inner { transform:rotateY(180deg); }
 
-/* СТИЛІ КАРТОК: Чорний фон, білий текст, кольорові рамки по контуру */
+/* ОНОВЛЕНІ СТИЛІ КАРТОК (для вирівнювання) */
 .card-face {
     position:absolute;
     width:100%;
@@ -36,24 +34,25 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     border-radius:14px;
     padding:15px;
     
+    /* ВИРІВНЮВАННЯ: по центру вертикально, по ширині горизонтально */
     display:flex;
     flex-direction:column;
-    justify-content:center; /* Центрування тексту по вертикалі */
-    align-items:center;    /* Центрування тексту по горизонталі */
-    text-align:center;  /* Вирівнювання самого тексту */
+    justify-content:center;
+    align-items:stretch;
+    text-align:justify; 
 
-    background:#000; /* Чорний фон картки */
-    color:#fff; /* Білий текст */
-    border:3px solid; /* Товщина рамки */
+    background:#000;
+    color:#fff;
+    border:3px solid;
     font-size: 16px;
-    line-height: 1.3;
-    hyphens: auto;
+    line-height: 1.3; /* Додатковий рядок для читабельності */
+    hyphens: auto; /* Можливість перенесення слів */
 }
-.card-front { border-color:red; } /* Червона рамка спереду */
-.card-back { border-color:lime; transform:rotateY(180deg); } /* Зелена рамка ззаду (коректне відображення тексту) */
- 
-/* Кнопка "Пограєм?" - чорна на білому фоні карток */
+.card-front { border-color:red; }
+.card-back { border-color:lime; transform:rotateY(180deg); }
 #play-btn { display:none; margin-top:30px; background:#000; color:#fff; border:2px solid #000; }
+
+
 </style>
 </head>
 <body>
@@ -66,8 +65,9 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
 <section id="cards-screen">
     <h2 style="margin-bottom:20px;">Оцініть всі ризики</h2>
     <div class="cards-grid" id="cards-container"></div>
-        <a href="pingpong.html"><button id="play-btn">Пограєм?</button></a>
+    <a href="pingpong.html"><button id="play-btn">Пограєм?</button></a>
 </section>
+
 
 <script>
 /*************************** ПЕРЕХОДИ ***************************/
@@ -97,7 +97,7 @@ let flippedCount = 0; // Лічильник унікальних перегор�
 cardData.forEach((c, index) => {
     let card = document.createElement('div');
     card.className = 'card';
-    card.setAttribute('data-flipped-once', 'false');
+    card.setAttribute('data-flipped-once', 'false'); // Новий атрибут для відстеження
     card.innerHTML = `
         <div class="card-inner">
             <div class="card-face card-front">${c.front}</div>
@@ -124,15 +124,11 @@ cardData.forEach((c, index) => {
         if (flippedCount === cardData.length) {
             playBtn.style.display = 'block';
         } 
+        // Примітка: Кнопка залишається видимою, навіть якщо користувач поверне картку назад.
     };
 
     container.appendChild(card);
-});
-
-// ВИДАЛЕНО: playBtn.onclick, який запускав вбудовану гру.
-// Замість нього працює стандартне посилання <a href="pingpong.html">
-
-// УСЯ ЛОГІКА ГРИ "ПІНГ-ПОНГ" ВИДАЛЕНА З JAVASCRIPT
+};
 </script>
 </body>
 </html>
