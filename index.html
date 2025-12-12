@@ -20,71 +20,66 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
 
 /* --- КАРТКИ --- */
 #cards-screen { background:#fff; color:#000; display:none; }
-
-/* ВИПРАВЛЕННЯ: зменшена відстань між картками (gap: 10px) */
-.cards-grid { width:100%; max-width:500px; display:grid; grid-template-columns:1fr; gap:10px; }
+.cards-grid { width:100%; max-width:500px; display:grid; grid-template-columns:1fr; gap:20px; }
 .card { width:100%; height:180px; perspective:1000px; cursor:pointer; }
 .card-inner { width:100%; height:100%; position:relative; transition:transform 0.6s; transform-style:preserve-3d; }
 .card.flipped .card-inner { transform:rotateY(180deg); }
 
-/* ВИПРАВЛЕННЯ: Зменшена відстань між заголовком та картками */
-#cards-screen h2 {
-    margin-top: 0;
-    margin-bottom: 10px; /* Фінальне значення відступу */
-    font-size: 24px;
-}
-
 /* СТИЛІ КАРТОК: Чорний фон, білий текст, кольорові рамки по контуру */
+/* ВИПРАВЛЕНИЙ БЛОК СТИЛІВ КАРТОК */
 .card-face {
     position:absolute;
     width:100%;
     height:100%;
-    backface-visibility:hidden; 
+    /* Гарантує, що зворотна сторона не прозора */
+    backface-visibility:hidden; 
     border-radius:14px;
     padding:15px;
     
+    /* ВИРІВНЮВАННЯ: Тепер центруємо вміст */
     display:flex;
     flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
+    justify-content:center; /* Центр по вертикалі */
+    align-items:center;    /* Центр по горизонталі */
+    text-align:center;     /* Центруємо сам текст */
 
-    background:#000;
-    color:#fff;
+    background:#000; /* ЧОРНИЙ ФОН */
+    color:#fff;     /* БІЛИЙ ТЕКСТ */
     border:3px solid;
     font-size: 16px;
     line-height: 1.3;
     hyphens: auto;
 }
-.card-front { 
-    border-color:red; 
-    transform: rotateY(0deg); 
+.card-front { 
+    border-color:red; 
+    /* Лицьова сторона не має обертатися */
+    transform: rotateY(0deg); 
 }
-.card-back { 
-    border-color:lime; 
-    transform: rotateY(180deg); 
+.card-back { 
+    border-color:lime; 
+    /* Обертаємо зворотну сторону, щоб її текст був прямо, коли вся картка перевернута */
+    transform: rotateY(180deg); 
 }
-
-/* СТИЛІ КНОПКИ */
-#play-btn { 
-    display: none;
-    margin-top:30px; /* Достатній відступ від останньої картки */
-    background:#000; 
-    color:#fff; 
-    border:2px solid #000; 
+#play-btn { 
+    display: none; /* ЦЕ КРИТИЧНО: Приховуємо кнопку на старті */
+    margin-top:30px; 
+    background:#000; 
+    color:#fff; 
+    border:2px solid #000; 
 }
 </style>
 </head>
 <body>
 
 <section id="title-screen">
-    <h1>Журнал оцінки ризиків для дільниці SMT</h1>
-    <button id="start-btn">Старт</button>
+    <h1>Журнал оцінки ризиків для дільниці SMT</h1>
+    <button id="start-btn">Старт</button>
 </section>
 
 <section id="cards-screen">
-    <h2>Оцініть всі ризики</h2> <div class="cards-grid" id="cards-container"></div>
-    <a href="pingpong.html"><button id="play-btn">Пограєм?</button></a>
+    <h2 style="margin-bottom:10px;">Ризик/Контроль</h2>
+    <div class="cards-grid" id="cards-container"></div>
+    <a href="pingpong.html"><button id="play-btn">Пограєм?</button></a>
 </section>
 
 
@@ -96,72 +91,68 @@ const startBtn = document.getElementById('start-btn');
 const playBtn = document.getElementById('play-btn');
 
 startBtn.onclick = () => {
-    title.style.display = 'none';
-    cards.style.display = 'flex';
+    title.style.display = 'none';
+    cards.style.display = 'flex';
 };
 
 /*************************** КАРТКИ ***************************/
-// ПОВНИЙ СПИСОК РИЗИКІВ ТА ЗАХОДІВ КОНТРОЛЮ
+// ТУТ МОЖНА ЗМІНЮВАТИ ТЕКСТ КАРТОК
 const cardData = [
-    // Картка 1 (Спонтанний запуск, Навчання/ТО)
-    { 
+    { 
         front:"Спонтанний запуск рухомих частин обладнання з травмуванням кінцівок. Можливі дії: ТО внутрішнього простору (1/міс.), налаштування гравіювальника, виставляння пінів (ручна праця при заблокованій машині).", 
-        back:"Системне навчання та технічне обслуговування. Забезпечення знань по І-48У, І-96У; Періодичне навчання з ОП №19 (1/3 міс.); Регулярні автономні та планові ТО спец. компанією (1/6 міс.)." 
+      back:"Системне навчання та технічне обслуговування. Забезпечення знань по І-48У, І-96У; Періодичне навчання з ОП №19 (1/3 міс.); Регулярні автономні та планові ТО спец. компанією (1/6 міс.)."},
+    {  
+      front:"Порізи рук та пальців об гострі краї або частини з небезпечними поверхнями під час розпаковки, перевірки та завантаження плат.", 
+      back:"Первинне та періодичне навчання з охорони праці №14 'При виконанні вантажно-розвантажувальних робіт' (не рідше 1 разу на 3 місяці)." 
+     },
+    { front:"Травмування очей/кінцівок внаслідок розриву гнучкого повітропроводу через подачу надвисокого тиску (підготовка до роботи/фіксація трафарету).", 
+      back:"Візуальний контроль тиску на манометрах на початку кожної зміни." 
     },
-    // Картка 2 (Різальні частини/Розраковка плат)
-    { 
-        front:"Порізи рук та пальців об гострі краї або частини з небезпечними поверхнями під час розпаковки, перевірки та завантаження плат.", 
-        back:"Первинне та періодичне навчання з охорони праці №14 'При виконанні вантажно-розвантажувальних робіт' (не рідше 1 разу на 3 місяці)." 
-    },
-    // Картка 3 (Високий тиск/Трафарет)
-    { 
-        front:"Травмування очей/кінцівок внаслідок розриву гнучкого повітропроводу через подачу надвисокого тиску (підготовка до роботи/фіксація трафарету).", 
-        back:"Візуальний контроль тиску на манометрах на початку кожної зміни." 
-    },
-    // Картка 4 (Електричний струм/Комплекс заходів)
-    { 
-        front:"Ураження електричним струмом через несправності системи захисту або роботу з струмопровідними частинами під напругою (під час автономних ТО).", 
+    { front:"Ураження електричним струмом через несправності системи захисту або роботу з струмопровідними частинами під напругою (під час автономних ТО).", 
         back:"Комплексна перевірка електробезпеки та навчання персоналу: Навчання по І-86У, І-168У, І-268У, № ПР-5У; Періодичне навчання з ОП №19; Щорічне навчання з електробезпеки (Група II) та перевірка заземлення." 
     },
-    // Картка 5 (Вологе прибирання)
-    { 
+    { 
         front:"Падіння, ковзання або спотикання на слизькій підлозі після проведення вологого прибирання.", 
-        back:"Контроль: Вологе прибирання відбувається між 06:00 та 08:00 ранку, до приходу більшості співробітників." 
+        back:"Контроль: Дотримання графіка прибирання, використання попереджувальних табличок." 
     }
 ];
 
 const container = document.getElementById('cards-container');
-let flippedCount = 0;
+let flippedCount = 0; // Лічильник унікальних перегорнутих карток
 
 cardData.forEach((c, index) => {
-    let card = document.createElement('div');
-    card.className = 'card';
-    card.setAttribute('data-flipped-once', 'false');
-    card.innerHTML = `
-        <div class="card-inner">
-            <div class="card-face card-front">${c.front}</div>
-            <div class="card-face card-back">${c.back}</div>
-        </div>
-    `;
+    let card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-flipped-once', 'false'); // Новий атрибут для відстеження
+    card.innerHTML = `
+        <div class="card-inner">
+            <div class="card-face card-front">${c.front}</div>
+            <div class="card-face card-back">${c.back}</div>
+        </div>
+    `;
 
-    card.onclick = () => {
-        const wasFlipped = card.classList.contains('flipped');
-        
-        card.classList.toggle('flipped');
-        
-        const isFlippedNow = card.classList.contains('flipped');
+    // Логіка двостороннього перегортання
+    card.onclick = () => {
+        const wasFlipped = card.classList.contains('flipped');
+        
+        // Перемикаємо стан картки
+        card.classList.toggle('flipped');
+        
+        const isFlippedNow = card.classList.contains('flipped');
 
-        if (!wasFlipped && isFlippedNow && card.getAttribute('data-flipped-once') === 'false') {
-            card.setAttribute('data-flipped-once', 'true');
-            flippedCount++;
-        }
-        
-        if (flippedCount === cardData.length) {
-            playBtn.style.display = 'block';
-        } 
-    };
+        // Оновлюємо лічильник лише при першому перегортанні на зворотній бік
+        if (!wasFlipped && isFlippedNow && card.getAttribute('data-flipped-once') === 'false') {
+            card.setAttribute('data-flipped-once', 'true');
+            flippedCount++;
+        }
+        
+        // Показуємо кнопку, якщо перегорнуто всі картки
+        if (flippedCount === cardData.length) {
+            playBtn.style.display = 'block';
+        } 
+    };
 
-    container.appendChild(card);
+    container.appendChild(card);
 });
 </script>
 </body>
