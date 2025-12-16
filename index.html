@@ -24,8 +24,8 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
 .cards-grid { width:100%; max-width:500px; display:grid; grid-template-columns:1fr; gap:20px; }
 .card { 
     width:100%; 
-    height:auto;       /* Дозволяємо браузеру визначати висоту */
-    min-height: 180px; /* ✅ Картка буде не менше 180px */
+    height:auto; 
+    min-height: 180px; /* ✅ АДАПТИВНА МІНІМАЛЬНА ВИСОТА */
     perspective:1000px; 
     cursor:pointer; 
 }
@@ -40,13 +40,13 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     min-height: 100%;
     backface-visibility:hidden;	
     border-radius:14px;
-    padding:20px 15px;
+    padding:10px 10px;
     
     /* ВИРІВНЮВАННЯ: Тепер організовуємо вміст у колонку */
     display:flex;
     flex-direction:column;
     justify-content:flex-start; /* Вміст починається згори */
-    align-items:center;	
+    align-items:flex-start;	
     text-align:center;	
 
     background:#000; /* ЧОРНИЙ ФОН КАРТКИ */
