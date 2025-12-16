@@ -26,7 +26,6 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
 .card.flipped .card-inner { transform:rotateY(180deg); }
 
 /* СТИЛІ КАРТОК: Чорний фон, білий текст, кольорові рамки по контуру */
-/* ВИПРАВЛЕНИЙ БЛОК СТИЛІВ КАРТОК */
 .card-face {
     position:absolute;
     width:100%;
@@ -39,7 +38,7 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     /* ВИРІВНЮВАННЯ: Тепер організовуємо вміст у колонку */
     display:flex;
     flex-direction:column;
-    justify-content:flex-start; /* ✅ ВИПРАВЛЕНО: Вміст починається згори */
+    justify-content:flex-start; /* Вміст починається згори */
     align-items:center;    /* Центр по горизонталі */
     text-align:center;     /* Центруємо сам текст */
 
@@ -50,6 +49,19 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     line-height: 1.3;
     hyphens: auto;
 }
+
+/* ✅ ВИПРАВЛЕНО: Блок для h3 винесено з коментарів */
+.card-face h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #fff; /* Білий колір */
+    border-bottom: 2px solid #fff; /* Товсте біле підкреслення */
+    padding-bottom: 5px;
+    width: 100%;
+    text-align: center;
+}
+
 .card-front { 
     border-color:red; 
     /* Лицьова сторона не має обертатися */
@@ -59,18 +71,6 @@ button { cursor:pointer; border:none; padding:14px 26px; font-size:20px; border-
     border-color:lime; 
     /* Обертаємо зворотну сторону, щоб її текст був прямо, коли вся картка перевернута */
     transform: rotateY(180deg); 
-}
-
-/*новий блок для заголовків
-.card-face h3 {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #fff; /* Білий колір */
-    border-bottom: 2px solid #fff; /* Товсте біле підкреслення */
-    padding-bottom: 5px;
-    width: 100%;
-    text-align: center;
 }
 
 #play-btn { 
