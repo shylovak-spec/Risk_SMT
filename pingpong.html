@@ -76,7 +76,6 @@ let score = 0;
 const MAX_SPEED = 16;
 const SPEED_GROWTH = 0.10;
 
-let hitFlash = 0;
 let explosionParticles = [];
 let exploding = false;
 
@@ -174,7 +173,6 @@ function update() {
 
         score++;
         document.getElementById("score").innerText = score;
-        hitFlash = 8;
         increaseDifficulty();
     }
 
@@ -182,8 +180,7 @@ function update() {
 }
 
 function draw() {
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.fillRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H);
 
     if (!isRunning) {
         ctx.fillStyle = "#fff";
@@ -202,11 +199,6 @@ function draw() {
     }
 
     ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
-
-    if (hitFlash > 0) {
-        ctx.fillStyle = "rgba(255,255,255,0.15)";
-        ctx.fillRect(0, 0, W, H);
-        hitFlash--;
     }
 
     if (exploding) {
